@@ -59,7 +59,7 @@ void wait_for_acceleration(float threshold) {
 }
 
 float getXAcceleration() {
-  mma.read();
+  //mma.read();
   sensors_event_t event; 
   mma.getEvent(&event);
   return event.acceleration.x;
