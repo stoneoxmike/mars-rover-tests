@@ -5,7 +5,7 @@
 #include <Servo.h>
 #include <SD.h>
 #include <SPI.h>
-#include <MMA8451.h>
+#include <Adafruit_MMA8451.h>
 #include <Adafruit_VC0706.h>
 #include <SoftwareSerial.h>
 #include <SR04.h>
