@@ -1,3 +1,5 @@
+FILE IS OUT OF DATE
+
 # Accelerometer Test
 This test is designed to test the *Adafruit MMA8451* accelerometer mounted on the Mars Lander.  
 Currently, the test is designed to run on the **positive X-Axis**, but the code may be modified to test in other axies.  
