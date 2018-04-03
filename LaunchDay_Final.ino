@@ -29,7 +29,7 @@ void initialize(){
   parachute_servo.attach(9);    //Use pin 9
   
   Servo tankRelease_servo;      //Initialize Tank Release Servo
-  tankRelease_servo.attach();   //WHAT PIN IS THIS???
+  tankRelease_servo.attach(10);   //WHAT PIN IS THIS???
   
   Adafruit_MMA8451 mma = Adafruit_MMA8451();    //Initialize accelerometer and name it "MMA"
   
