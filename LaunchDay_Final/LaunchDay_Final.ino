@@ -31,9 +31,11 @@ void setup() {
 void initialize(){
   Servo parachute_servo;        //Initialize Parachute Servo
   parachute_servo.attach(9);    //Use pin 9
+  parachute_servo.write(lockdegrees);
   
   Servo tankRelease_servo;      //Initialize Tank Release Servo
   tankRelease_servo.attach(10);   //Use pin 10
+  tankRelease_servo.write(100);
   
   Adafruit_MMA8451 mma = Adafruit_MMA8451();    //Initialize accelerometer and name it "MMA"
   
@@ -65,11 +67,11 @@ void detectGround(){
 }
 
 void releaseParachute(){
-  
+  parachute_servo.write(releasedegrees);
 }
 
 void releaseTank(){
-  
+  tankRelease_servo.write(10);
 }
 
 void driveTank(){                     //Michael, it seems that you cannont define a function within a function.  I suggest the following...
