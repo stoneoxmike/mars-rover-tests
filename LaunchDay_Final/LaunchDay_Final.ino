@@ -18,7 +18,7 @@
 
 void setup() {
   initialize();       //Turn everything on                                (In Progress)  
-  detectLaunch(15);   //Read MMA for launch acceleration signature        (DONE, needs final testing)  Note: We should try changing the range to mma.setRange(MMA8451_RANGE_4_G); and readig some data.  Then we can detect a larger acceleration and rule out more noise.
+  detectLaunch(15);   //Read MMA for launch acceleration signature        (DONE, needs final testing)  Note: We should try changing the range to mma.setRange(MMA8451_RANGE_4_G); and readig some data.  Then we can detect a larger acceleration and rule out more noise. Or, make it 6 - 8 consecutive readings.
   delay(40000);       //Wait to clear separation debris, in milliseconds  (DONE, agree on number)  Sensor read "Out of Range" from T+20 seconds to T+105 seconds during February launch.
   detectGround(200);  //Read UTS for ground approach signature            (DONE, based on detectLaunch, untested)  (Approach data from Feb: 77, 126, 138, out, out, out, out, out, 312, 275, 246, 220, 191, 160, 133, 110, 91, 67, 48, 16, 10)
   releaseParachute(); //Move parachute release servo                      (Needs numbers specified)
