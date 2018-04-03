@@ -72,76 +72,6 @@ void releaseTank(){
   
 }
 
-void driveTank(){                 //See my propsed change below this function.  -Bahn
-  #define FORWARD_TIME 5000
-  #define SPIN_TIME 500
-  #define TURRET_TIME 3000
-  
-  init_pins();
-  pair_tank();
-  forward(FORWARD_TIME);
-  drop_marker();
-  spin_right(SPIN_TIME);
-  forward(FORWARD_TIME);  
-  
-  void forward(int mil) {
-    digitalWrite(16, HIGH);
-    digitalWrite(5, HIGH);
-    delay(mil);
-    digitalWrite(16, LOW);
-    digitalWrite(5, LOW);
-    delay(300);
-  }
-
-  void spin_right(int mil) {
-    digitalWrite(16, HIGH);
-    digitalWrite(3, HIGH);
-    delay(mil);
-    digitalWrite(16, LOW);
-    digitalWrite(3, LOW);
-    delay(300);
-  }
-
-  void drop_marker() { //Turn the turret right
-    digitalWrite(17, HIGH);
-    delay(TURRET_TIME);
-    digitalWrite(17, LOW);
-    delay(300);
-  }
-
-  void pair_tank() { // Based upon Micheal's code that works
-    digitalWrite(15, HIGH);
-    delay(100);
-    digitalWrite(14, HIGH);
-    delay(100);
-    digitalWrite(14, LOW);
-    digitalWrite(15, LOW);
-    delay(3000);
-  }
-  
-  void init_pins() {
-    //Set all of our pins to outputs
-    pinMode(16, OUTPUT);
-    pinMode(5, OUTPUT);
-    pinMode(2, OUTPUT);
-    pinMode(3, OUTPUT);
-    pinMode(4, OUTPUT);
-    pinMode(17, OUTPUT);
-    pinMode(14, OUTPUT);
-    pinMode(15, OUTPUT);
-
-    //Set everything to LOW
-    digitalWrite(16, LOW);
-    digitalWrite(5, LOW);
-    digitalWrite(2, LOW);
-    digitalWrite(3, LOW);
-    digitalWrite(4, LOW);
-    digitalWrite(17, LOW);
-    digitalWrite(14, LOW);
-    digitalWrite(15, LOW);
-  }
-}
-
 void driveTank(){                     //Michael, it seems that you cannont define a function within a function.  I suggest the following...
   //Set all of our pins to outputs    //I put the DEFINES at the top because the are one of the few thigns that WILL be changed that day.
   pinMode(16, OUTPUT);
@@ -180,18 +110,18 @@ void driveTank(){                     //Michael, it seems that you cannont defin
   digitalWrite(5, LOW);
   delay(300);
   
-  //Turn turret right               //Should we turn this the other way? (left)
-  digitalWrite(17, HIGH);
-  delay(TURRET_TIME);
-  digitalWrite(17, LOW);
-  delay(300);
-  
   //Turn tank right
   digitalWrite(16, HIGH);
   digitalWrite(3, HIGH);
   delay(SPIN_TIME);
   digitalWrite(16, LOW);
   digitalWrite(3, LOW);
+  delay(300);
+  
+  //Turn turret right
+  digitalWrite(17, HIGH);
+  delay(TURRET_TIME);
+  digitalWrite(17, LOW);
   delay(300);
   
   //Drive forward again
