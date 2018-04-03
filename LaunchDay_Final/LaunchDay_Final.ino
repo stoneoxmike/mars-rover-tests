@@ -17,21 +17,21 @@
 #define TURRET_TIME 3000
 
 void setup() {
-  initialize();       //Turn everything on
-  detectLaunch();     //Read MMA for launch acceleration signature
-  delay(60000);       //Read UTS for ground approach signature
-  releaseParachute(); //Move parachute release servo
-  delay(10000);       //Wait to land and settle
-  releaseTank();      //Move tank release servo
-  driveTank();        //Move tank, drop marker, move tank
-  captureImages();    //Store 4 images to SD card
-  transmitIamges();   //Transfer 4 images via xBee to ground station
+  initialize();       //Turn everything on                            (In Progress)  
+  detectLaunch();     //Read MMA for launch acceleration signature    (Needs copy/pasted in)
+  delay(60000);       //Read UTS for ground approach signature        (Exact number should be discussed)
+  releaseParachute(); //Move parachute release servo                  (Needs numbers specified)
+  delay(10000);       //Wait to land and settle                       (Exact number can be changed)
+  releaseTank();      //Move tank release servo                       (DONE, needs testing)
+  driveTank();        //Move tank, drop marker, move tank             (DONE, needs testing)
+  captureImages();    //Store 4 images to SD card                     (In Progress)
+  transmitIamges();   //Transfer 4 images via xBee to ground station  (In Progress)
 }
 
 void initialize(){
   Servo parachute_servo;        //Initialize Parachute Servo
   parachute_servo.attach(9);    //Use pin 9
-  parachute_servo.write(lockdegrees);
+  parachute_servo.write(lockdegrees);       //NEEDS A SPECIFIC NUMBER
   
   Servo tankRelease_servo;      //Initialize Tank Release Servo
   tankRelease_servo.attach(10);   //Use pin 10
@@ -74,8 +74,8 @@ void releaseTank(){
   tankRelease_servo.write(10);
 }
 
-void driveTank(){                     //Michael, it seems that you cannont define a function within a function.  I suggest the following...
-  //Set all of our pins to outputs    //I put the DEFINES at the top because the are one of the few thigns that WILL be changed that day.
+void driveTank(){          //Three variables are DEFINED at the top of the program because they are some of the few things that WILL be changed on launch day
+  //Set all of our pins to outputs    
   pinMode(16, OUTPUT);
   pinMode(5, OUTPUT);
   pinMode(2, OUTPUT);
