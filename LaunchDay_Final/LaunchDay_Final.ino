@@ -35,16 +35,18 @@ void initialize(){
   
   SR04 sr04 = SR04(6, 7);          //Initialize UTS and name it "sr04"  (Echo_pin = 6, Trig_pin = 7)
   
-  SoftwareSerial cam1SerialConnection = SoftwareSerial(CAMERA_1_TX_PIN, CAMERA_1_RX_PIN);   //Initialize Camera 1
+  SD.begin(53);
+  
+  SoftwareSerial cam1SerialConnection = SoftwareSerial(63, 62);   //Initialize Camera 1
   Adafruit_VC0706 cam1 = Adafruit_VC0706(&cam1SerialConnection);                            //and name it "cam1"
   
-  SoftwareSerial cam2SerialConnection = SoftwareSerial(CAMERA_2_TX_PIN, CAMERA_2_RX_PIN);   //Initialize Camera 2
+  SoftwareSerial cam2SerialConnection = SoftwareSerial(65, 64);   //Initialize Camera 2
   Adafruit_VC0706 cam2 = Adafruit_VC0706(&cam2SerialConnection);                            //and name it "cam2"
   
-  SoftwareSerial cam3SerialConnection = SoftwareSerial(CAMERA_3_TX_PIN, CAMERA_3_RX_PIN);   //Initialize Camera 3
+  SoftwareSerial cam3SerialConnection = SoftwareSerial(67, 66);   //Initialize Camera 3
   Adafruit_VC0706 cam3 = Adafruit_VC0706(&cam3SerialConnection);                            //and name it "cam3"
 
-  SoftwareSerial cam4SerialConnection = SoftwareSerial(CAMERA_4_TX_PIN, CAMERA_4_RX_PIN);   //Initialize Camera 4
+  SoftwareSerial cam4SerialConnection = SoftwareSerial(69, 68);   //Initialize Camera 4
   Adafruit_VC0706 cam4 = Adafruit_VC0706(&cam4SerialConnection);                            //and name it "cam4"
   
   Serial1.begin(9600);    //Initialize xBee Serial Connection @ 9600 bps
