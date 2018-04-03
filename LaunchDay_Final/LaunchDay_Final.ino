@@ -12,6 +12,10 @@
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
 
+#define FORWARD_TIME 5000
+#define SPIN_TIME 500
+#define TURRET_TIME 3000
+
 void setup() {
   initialize();       //Turn everything on
   detectLaunch();     //Read MMA for launch acceleration signature
@@ -35,7 +39,7 @@ void initialize(){
   
   SR04 sr04 = SR04(6, 7);          //Initialize UTS and name it "sr04"  (Echo_pin = 6, Trig_pin = 7)
   
-  SD.begin(53);
+  SD.begin(53);                   //Initialize the SD card reader using pin 53 for CS
   
   SoftwareSerial cam1SerialConnection = SoftwareSerial(63, 62);   //Initialize Camera 1
   Adafruit_VC0706 cam1 = Adafruit_VC0706(&cam1SerialConnection);                            //and name it "cam1"
@@ -68,7 +72,7 @@ void releaseTank(){
   
 }
 
-void driveTank(){
+void driveTank(){                 //See my propsed change below this function.  -Bahn
   #define FORWARD_TIME 5000
   #define SPIN_TIME 500
   #define TURRET_TIME 3000
@@ -137,6 +141,67 @@ void driveTank(){
     digitalWrite(15, LOW);
   }
 }
+
+void driveTank(){                     //Michael, it seems that you cannont define a function within a function.  I suggest the following...
+  //Set all of our pins to outputs    //I put the DEFINES at the top because the are one of the few thigns that WILL be changed that day.
+  pinMode(16, OUTPUT);
+  pinMode(5, OUTPUT);
+  pinMode(2, OUTPUT);
+  pinMode(3, OUTPUT);
+  pinMode(4, OUTPUT);
+  pinMode(17, OUTPUT);
+  pinMode(14, OUTPUT);
+  pinMode(15, OUTPUT);
+
+  //Set everything to LOW
+  digitalWrite(16, LOW);
+  digitalWrite(5, LOW);
+  digitalWrite(2, LOW);
+  digitalWrite(3, LOW);
+  digitalWrite(4, LOW);
+  digitalWrite(17, LOW);
+  digitalWrite(14, LOW);
+  digitalWrite(15, LOW);
+  
+  //Pair tank to controller
+  digitalWrite(15, HIGH);
+  delay(100);
+  digitalWrite(14, HIGH);
+  delay(100);
+  digitalWrite(14, LOW);
+  digitalWrite(15, LOW);
+  delay(3000);
+  
+  //Drive forward
+  digitalWrite(16, HIGH);
+  digitalWrite(5, HIGH);
+  delay(FORWARD_TIME);
+  digitalWrite(16, LOW);
+  digitalWrite(5, LOW);
+  delay(300);
+  
+  //Turn turret right               //Should we turn this the other way? (left)
+  digitalWrite(17, HIGH);
+  delay(TURRET_TIME);
+  digitalWrite(17, LOW);
+  delay(300);
+  
+  //Turn tank right
+  digitalWrite(16, HIGH);
+  digitalWrite(3, HIGH);
+  delay(SPIN_TIME);
+  digitalWrite(16, LOW);
+  digitalWrite(3, LOW);
+  delay(300);
+  
+  //Drive forward again
+  digitalWrite(16, HIGH);
+  digitalWrite(5, HIGH);
+  delay(FORWARD_TIME);
+  digitalWrite(16, LOW);
+  digitalWrite(5, LOW);
+  delay(300);
+}  
 
 void captureImages(){
   
