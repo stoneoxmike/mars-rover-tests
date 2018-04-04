@@ -137,7 +137,7 @@ void driveTank(){          //Three variables are DEFINED at the top of the progr
   //Turn tank right
   digitalWrite(16, HIGH);
   digitalWrite(3, HIGH);
-  delay(SPIN_TIME);
+  delay(SPIN_TIME);4
   digitalWrite(16, LOW);
   digitalWrite(3, LOW);
   delay(300);
@@ -158,7 +158,19 @@ void driveTank(){          //Three variables are DEFINED at the top of the progr
 }  
 
 void captureImages(){
+  // Initialize each camera and take a picture
+  initializeCamera(cam1);
+  captureAndSaveImage(cam1);
   
+  initializeCamera(cam2);
+  captureAndSaveImage(cam2);
+  
+  initializeCamera(cam3);
+  captureAndSaveImage(cam3);
+  
+  initializeCamera(cam4);
+  captureAndSaveImage(cam4);
+  }
 }
 
 void transmitImages(){
@@ -166,3 +178,45 @@ void transmitImages(){
 }
 
 void loop() {}    //leave empty, needed to compile
+
+void initializeCamera(Adafruit_VC0706 camera) {
+  // Try to locate the camera
+  if (camera.begin()) {
+    Serial.println("Camera Found:");
+  } else {
+    Serial.println("No camera found?");
+    return;
+  }
+ 
+  camera.setImageSize(VC0706_640x480);        // biggest
+}
+
+void captureAndSaveImage(Adafruit_VC0706 camera) {
+  // Create an image with the name IMAGExx.JPG
+  char filename[13];
+  strcpy(filename, "IMAGE00.JPG");
+  for (int i = 0; i < 100; i++) {
+    filename[5] = '0' + i/10;
+    filename[6] = '0' + i%10;
+    // create if does not exist, do not open existing, write, sync after write
+    if (! SD.exists(filename)) {
+      break;
+    }
+  }
+  
+  // Open the file for writing
+  File imgFile = SD.open(filename, FILE_WRITE);
+
+  // Get the size of the image (frame) taken  
+  uint16_t jpglen = camera.frameLength();
+
+  // Read all the data up to # bytes!
+  while (jpglen > 0) {
+    uint8_t *buffer;
+    uint8_t bytesToRead = min(32, jpglen);
+    buffer = camera.readPicture(bytesToRead);
+    imgFile.write(buffer, bytesToRead);
+    jpglen -= bytesToRead;
+  }
+  imgFile.close();
+}
