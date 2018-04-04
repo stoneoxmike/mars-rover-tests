@@ -22,7 +22,7 @@ Each variable is named according to what its connection controls:
 - ````TANK_TR_PIN```` -- Turrent Right. When this pin is set to HIGH, the turrent will spin the right.
 - ````TANK_TL_PIN```` -- Turrent Left.
 - ````TANK_POWER_PIN```` -- Tank Power Pin, used for pairing with the tank.
-- ````TANK_FUNC_PIN````` -- Tank Function Pin, used for pairing with the tank.
+- ````TANK_FUNC_PIN```` -- Tank Function Pin, used for pairing with the tank.
 
 ## Servo Release Testing
 The test can be configured to test the tank release servo on the Mars Lander.  
