@@ -10,7 +10,7 @@ This program is designed to test from one to four cameras on an Arduino MEGA.
 This program is also designed for multiple pin numberings to be tested/used (see Pin Configuration).
 
 To test a camera, please set it's respective variable from ````false```` to ````true````.   
-For example, if I wanted to test the camera connected to the pins specified by ```CAM_1_TX_PIN```` and ````CAM_1_RX_PIN````, I would change ````CAM_1_ENABLED```` to ````true````.
+For example, if I wanted to test the camera connected to the pins specified by ````CAM_1_TX_PIN```` and ````CAM_1_RX_PIN````, I would change ````CAM_1_ENABLED```` to ````true````.
 
 This may be tedious enabling each camera, so to save time, you can enable all 4 cameras by changing the ````ALL_CAMS_ENABLED```` variable to ````true````.
 
