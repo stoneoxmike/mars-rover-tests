@@ -45,7 +45,7 @@ void setup() {
   tankRelease_servo.write(10);      //Move tank release servo             (DONE, needs testing)
   driveTank();        //Move tank, drop marker, move tank                 (DONE, needs testing)
   captureImages();    //Store 4 images to SD card                         (In Progress)
-  transmitIamges();   //Transfer 4 images via xBee to ground station      (In Progress)
+  transmitImages();   //Transfer 4 images via xBee to ground station      (In Progress)
 }
 
 void initialize() {
@@ -57,11 +57,13 @@ void initialize() {
 
   mma = Adafruit_MMA8451();    //Initialize ACCELEROMETER and name it "MMA"
   mma.begin();                        //Begin comminucation with accelerometer
+  delay(1000); // Needs time to initialize
+  
   mma.setRange(MMA8451_RANGE_4_G);    //NOTE: This had been set to 2_G, I recommend changing to 4_G and setting the detection threshold to >20 m/s^2.  There are instances in the data from February that would have caused a pre-mature detection.
 
   pinMode(53, OUTPUT);        //Set the CS Pin as output
   SD.begin(53);               //Initialize the SD CARD READER using pin 53 for CS
-
+  delay(1000); // Time to initialize
   Serial1.begin(9600);    //Initialize xBee Serial Connection @ 9600 bps
 }
 
@@ -154,6 +156,7 @@ void driveTank() {          //Three variables are DEFINED at the top of the prog
 
 void initializeCamera(Adafruit_VC0706 camera) {
   camera.begin(); 
+  delay(1000); // Needs time to initialize
   camera.setImageSize(VC0706_640x480);  
 }
 
