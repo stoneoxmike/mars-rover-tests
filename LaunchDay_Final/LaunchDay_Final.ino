@@ -40,7 +40,7 @@ void initialize(){
   tankRelease_servo.write(100);
   
   Adafruit_MMA8451 mma = Adafruit_MMA8451();    //Initialize ACCELEROMETER and name it "MMA"
-  mma.begin()                                   //Begin comminucation with accelerometer
+  mma.begin();                                   //Begin comminucation with accelerometer
   mma.setRange(MMA8451_RANGE_4_G);              //NOTE: This had been set to 2_G, I recommend changing to 4_G and setting the detection threshold to >20 m/s^2.  There are instances in the data from February that would have caused a pre-mature detection.
   
   SR04 sr04 = SR04(6, 7);          //Initialize UTS and name it "sr04"  (Echo_pin = 6, Trig_pin = 7)
