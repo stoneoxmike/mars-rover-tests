@@ -33,7 +33,7 @@ void setup() {
 void initialize(){
   Servo parachute_servo;        //Initialize PARACHUTE Servo
   parachute_servo.attach(9);    //Use pin 9
-  parachute_servo.write(lockdegrees);       //NEEDS A SPECIFIC NUMBER
+  parachute_servo.write(45);       //NEEDS A SPECIFIC NUMBER
   
   Servo tankRelease_servo;      //Initialize TANK Release Servo
   tankRelease_servo.attach(10);   //Use pin 10
@@ -89,7 +89,7 @@ void detectGround(float threshold){         //Threshold for detection is in cm.
 }
 
 void releaseParachute(){
-  parachute_servo.write(releasedegrees);
+  parachute_servo.write(120);
 }
 
 void releaseTank(){
