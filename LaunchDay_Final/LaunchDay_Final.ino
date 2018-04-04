@@ -16,6 +16,9 @@
 #define SPIN_TIME 500
 #define TURRET_TIME 3000
 
+//For when we dial in the baud rate.
+#define XBEE_BAUD 9600
+
 Servo parachute_servo;        //Initialize PARACHUTE Servo
 Servo tankRelease_servo;      //Initialize TANK Release Servo
 
@@ -34,7 +37,11 @@ Adafruit_VC0706 cam3 = Adafruit_VC0706(&cam3SerialConnection);  //and name it "c
 
 SoftwareSerial cam4SerialConnection = SoftwareSerial(69, 68);   //Initialize Camera 4
 Adafruit_VC0706 cam4 = Adafruit_VC0706(&cam4SerialConnection);  //and name it "cam4"
-  
+
+String imageFileNames[4]; // This is an array of the file names of the images that were saved to the SD card
+int imageTransmissionRetries = 0;
+int imageNumber = 0; // This is the id of the current image we are capturing. Used for storing the name of the image file into the above array
+
 void setup() {
   initialize();       //Start everything with nominal values              (In Progress)
   detectLaunch(24);   //Read MMA for launch acceleration signature        (DONE)
@@ -64,7 +71,7 @@ void initialize() {
   pinMode(53, OUTPUT);        //Set the CS Pin as output
   SD.begin(53);               //Initialize the SD CARD READER using pin 53 for CS
   delay(1000); // Time to initialize
-  Serial1.begin(9600);    //Initialize xBee Serial Connection @ 9600 bps
+  Serial1.begin(XBEE_BAUD);    //Initialize xBee Serial Connection @ 9600 bps
 }
 
 void detectLaunch(float threshold) {            //Threshld for detection is in m/s^2
@@ -188,6 +195,35 @@ void captureAndSaveImage(Adafruit_VC0706 camera) {
     jpglen -= bytesToRead;
   }
   imgFile.close();
+  imageFileNames[imageNumber] = filename;
+  imageNumber++;
+}
+
+void transmitPicture(String filename) {
+  // Open the file for reading
+  File imgFile = SD.open(filename, FILE_READ);
+  long imgSize = imgFile.size();
+  if(imgSize > 0) {
+      Serial1.begin(XBEE_BAUD);
+      Serial1.println("IMG");
+      Serial1.print(imgSize);
+      Serial1.print("|");
+      byte b[1];
+      for(long s = 0; s < imgSize; s++) {
+        imgFile.read(b, 1);
+        Serial1.write(b[0]);
+        delay(10);
+      } 
+      imageTransmissionRetries = 0;
+  }
+  else {
+    if(imageTransmissionRetries < 3) { // Sometimes the SD card bugs out and says the file is not there when it really isnt. This is needed b/c eventually the SD card does report that the file is there so a few attempts are needed.
+     delay(2000); // Wait two seconds for the SD card to catchup
+     imageTransmissionRetries++;
+     transmitPicture(filename);
+    }
+  }
+  Serial1.flush();
 }
 
 void captureImages(){
@@ -206,7 +242,10 @@ void captureImages(){
 }
 
 void transmitImages(){
-  
+  transmitPicture(imageFileNames[0]);
+  transmitPicture(imageFileNames[1]);
+  transmitPicture(imageFileNames[2]);
+  transmitPicture(imageFileNames[3]);
 }
 
 void loop() {}    //leave empty, needed to compile
