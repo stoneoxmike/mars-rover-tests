@@ -17,7 +17,6 @@
 #define TURRET_TIME 3000
 
 Servo parachute_servo;        //Initialize PARACHUTE Servo
-
 Servo tankRelease_servo;      //Initialize TANK Release Servo
 
 Adafruit_MMA8451 mma;         //Create variable mma to be referenced later by other functions
@@ -37,21 +36,21 @@ SoftwareSerial cam4SerialConnection = SoftwareSerial(69, 68);   //Initialize Cam
 Adafruit_VC0706 cam4 = Adafruit_VC0706(&cam4SerialConnection);  //and name it "cam4"
   
 void setup() {
-  initialize();
+  initialize();       //Start everything with nominal values
   detectLaunch(15);   //Read MMA for launch acceleration signature        (DONE, needs final testing)  Note: We should try changing the range to mma.setRange(MMA8451_RANGE_4_G); and readig some data.  Then we can detect a larger acceleration and rule out more noise. Or, make it 6 - 8 consecutive readings.
   delay(40000);       //Wait to clear separation debris, in milliseconds  (DONE, agree on number)  Sensor read "Out of Range" from T+20 seconds to T+105 seconds during February launch.
   detectGround(200);  //Read UTS for ground approach signature            (DONE, based on detectLaunch, untested)  (Approach data from Feb: 77, 126, 138, out, out, out, out, out, 312, 275, 246, 220, 191, 160, 133, 110, 91, 67, 48, 16, 10)
-  parachute_servo.write(120); //Move parachute release servo                      (Needs numbers specified)
+  parachute_servo.write(120); //Move parachute release servo              (DONE, needs testing)
   delay(10000);       //Wait to land and settle, in milliseconds          (DONE)
-  tankRelease_servo.write(10);      //Move tank release servo                           (DONE, needs testing)
+  tankRelease_servo.write(10);      //Move tank release servo             (DONE, needs testing)
   driveTank();        //Move tank, drop marker, move tank                 (DONE, needs testing)
   captureImages();    //Store 4 images to SD card                         (In Progress)
-  //transmitIamges();   //Transfer 4 images via xBee to ground station      (In Progress)
+  transmitIamges();   //Transfer 4 images via xBee to ground station      (In Progress)
 }
 
 void initialize() {
   parachute_servo.attach(9);    //Use pin 9
-  parachute_servo.write(45);       //NEEDS A SPECIFIC NUMBER
+  parachute_servo.write(45);    //NEEDS A SPECIFIC NUMBER
 
   tankRelease_servo.attach(10);   //Use pin 10
   tankRelease_servo.write(100);   //NEEDS A SPECIFIC NUMBER
@@ -66,7 +65,7 @@ void initialize() {
   Serial1.begin(9600);    //Initialize xBee Serial Connection @ 9600 bps
 }
 
-void detectLaunch(float threshold){             //Threshld for detection is in m/s^2
+void detectLaunch(float threshold) {            //Threshld for detection is in m/s^2
   int i = 0;
   bool detected = false;
   while(!detected) {
@@ -80,7 +79,7 @@ void detectLaunch(float threshold){             //Threshld for detection is in m
   //if(detected == true) Serial1.println("DETECTED!");      //Commented out for now... Can add back in for debug...
 }
 
-void detectGround(float threshold){         //Threshold for detection is in cm.
+void detectGround(float threshold) {         //Threshold for detection is in cm.
   int i = 0;
   bool detected = false;
   while(!detected) {
@@ -92,7 +91,7 @@ void detectGround(float threshold){         //Threshold for detection is in cm.
   //if(detected == true) Serial1.println("GROUND DETECTED!");  //Commented out for now... Can add back in for debug...
 }
 
-void driveTank(){          //Three variables are DEFINED at the top of the program because they are some of the few things that WILL be changed on launch day
+void driveTank() {          //Three variables are DEFINED at the top of the program because they are some of the few things that WILL be changed on launch day
   //Set all of our pins to outputs    
   pinMode(16, OUTPUT);
   pinMode(5, OUTPUT);
