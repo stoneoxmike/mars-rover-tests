@@ -36,9 +36,9 @@ SoftwareSerial cam4SerialConnection = SoftwareSerial(69, 68);   //Initialize Cam
 Adafruit_VC0706 cam4 = Adafruit_VC0706(&cam4SerialConnection);  //and name it "cam4"
   
 void setup() {
-  initialize();       //Start everything with nominal values
-  detectLaunch(15);   //Read MMA for launch acceleration signature        (DONE, needs final testing)  Note: We should try changing the range to mma.setRange(MMA8451_RANGE_4_G); and readig some data.  Then we can detect a larger acceleration and rule out more noise. Or, make it 6 - 8 consecutive readings.
-  delay(40000);       //Wait to clear separation debris, in milliseconds  (DONE, agree on number)  Sensor read "Out of Range" from T+20 seconds to T+105 seconds during February launch.
+  initialize();       //Start everything with nominal values              (In Progress)
+  detectLaunch(24);   //Read MMA for launch acceleration signature        (DONE)
+  delay(40000);       //Wait to clear separation debris, in milliseconds  (DONE)  
   detectGround(200);  //Read UTS for ground approach signature            (DONE, based on detectLaunch, untested)  (Approach data from Feb: 77, 126, 138, out, out, out, out, out, 312, 275, 246, 220, 191, 160, 133, 110, 91, 67, 48, 16, 10)
   parachute_servo.write(120); //Move parachute release servo              (DONE, needs testing)
   delay(10000);       //Wait to land and settle, in milliseconds          (DONE)
@@ -50,10 +50,10 @@ void setup() {
 
 void initialize() {
   parachute_servo.attach(9);    //Use pin 9
-  parachute_servo.write(45);    //NEEDS A SPECIFIC NUMBER
+  parachute_servo.write(45);    
 
   tankRelease_servo.attach(10);   //Use pin 10
-  tankRelease_servo.write(100);   //NEEDS A SPECIFIC NUMBER
+  tankRelease_servo.write(100);   
 
   mma = Adafruit_MMA8451();    //Initialize ACCELEROMETER and name it "MMA"
   mma.begin();                        //Begin comminucation with accelerometer
@@ -73,7 +73,7 @@ void detectLaunch(float threshold) {            //Threshld for detection is in m
     mma.getEvent(&event);                       //Magical MMA Gobblety-Gook
     if(event.acceleration.x > threshold) i++;   //Check if we are above the threshold for detection, if so, add to count
       else i = 0;                               //If the reading is not above the threshold, reest the counter.  (Thanks, Geyer)
-    if(i >= 4) detected = true;                 //If the counter reaches 4, we have launched
+    if(i >= 6) detected = true;                 //If the counter reaches 4, we have launched
     delay(100);                                 //Even Accelerometers needs a break sometimes
     }
   //if(detected == true) Serial1.println("DETECTED!");      //Commented out for now... Can add back in for debug...
