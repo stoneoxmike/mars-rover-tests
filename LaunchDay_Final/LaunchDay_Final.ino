@@ -102,62 +102,64 @@ void detectGround(float threshold) {         //Threshold for detection is in cm.
 
 void driveTank() {          //Three variables are DEFINED at the top of the program because they are some of the few things that WILL be changed on launch day
   //Set all of our pins to outputs    
-  pinMode(16, OUTPUT);
-  pinMode(5, OUTPUT);
   pinMode(2, OUTPUT);
   pinMode(3, OUTPUT);
   pinMode(4, OUTPUT);
+  pinMode(5, OUTPUT);
   pinMode(17, OUTPUT);
-  pinMode(14, OUTPUT);
+  pinMode(16, OUTPUT);
   pinMode(15, OUTPUT);
+  pinMode(14, OUTPUT);
 
   //Set everything to LOW
-  digitalWrite(16, LOW);
-  digitalWrite(5, LOW);
   digitalWrite(2, LOW);
   digitalWrite(3, LOW);
   digitalWrite(4, LOW);
+  digitalWrite(5, LOW);
   digitalWrite(17, LOW);
-  digitalWrite(14, LOW);
+  digitalWrite(16, LOW);
   digitalWrite(15, LOW);
+  digitalWrite(14, LOW);
+
+  delay(500);
   
   //Pair tank to controller
-  digitalWrite(15, HIGH);
+  digitalWrite(2, HIGH);
   delay(100);
-  digitalWrite(14, HIGH);
+  digitalWrite(17, HIGH);
   delay(100);
-  digitalWrite(14, LOW);
-  digitalWrite(15, LOW);
-  delay(3000);
+  digitalWrite(17, LOW);
+  digitalWrite(2, LOW);
+  delay(1000);
   
   //Drive forward
-  digitalWrite(16, HIGH);
   digitalWrite(5, HIGH);
+  digitalWrite(15, HIGH);
   delay(FORWARD_TIME);
-  digitalWrite(16, LOW);
   digitalWrite(5, LOW);
-  delay(300);
+  digitalWrite(15, LOW);
+  delay(500);
   
   //Turn tank right
-  digitalWrite(16, HIGH);
+  digitalWrite(15, HIGH);
   digitalWrite(3, HIGH);
   delay(SPIN_TIME);
-  digitalWrite(16, LOW);
+  digitalWrite(15, LOW);
   digitalWrite(3, LOW);
-  delay(300);
+  delay(500);
   
   //Turn turret right
-  digitalWrite(17, HIGH);
+  digitalWrite(14, HIGH);
   delay(TURRET_TIME);
-  digitalWrite(17, LOW);
-  delay(300);
+  digitalWrite(14, LOW);
+  delay(500);
   
   //Drive forward again
-  digitalWrite(16, HIGH);
   digitalWrite(5, HIGH);
+  digitalWrite(15, HIGH);
   delay(FORWARD_TIME);
-  digitalWrite(16, LOW);
   digitalWrite(5, LOW);
+  digitalWrite(15, LOW);
   delay(300);
 }  
 
