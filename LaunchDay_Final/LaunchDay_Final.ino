@@ -16,9 +16,6 @@
 #define SPIN_TIME 500
 #define TURRET_TIME 3000
 
-//For when we dial in the baud rate.
-#define XBEE_BAUD 9600
-
 Servo parachute_servo;        //Initialize PARACHUTE Servo
 Servo tankRelease_servo;      //Initialize TANK Release Servo
 
@@ -26,16 +23,16 @@ Adafruit_MMA8451 mma;         //Create variable mma to be referenced later by ot
 
 SR04 sr04  = SR04(6, 7);      //Initialize UTS and name it "sr04"  (Echo_pin = 6, Trig_pin = 7)
   
-SoftwareSerial cam1SerialConnection = SoftwareSerial(62, 63);   //Initialize Camera 1
+SoftwareSerial cam1SerialConnection(62, 63);   //Initialize Camera 1
 Adafruit_VC0706 cam1 = Adafruit_VC0706(&cam1SerialConnection);  //and name it "cam1"
   
-SoftwareSerial cam2SerialConnection = SoftwareSerial(64, 65);   //Initialize Camera 2
+SoftwareSerial cam2SerialConnection(64, 65);   //Initialize Camera 2
 Adafruit_VC0706 cam2 = Adafruit_VC0706(&cam2SerialConnection);  //and name it "cam2"
   
-SoftwareSerial cam3SerialConnection = SoftwareSerial(66, 67);   //Initialize Camera 3
+SoftwareSerial cam3SerialConnection(66, 67);   //Initialize Camera 3
 Adafruit_VC0706 cam3 = Adafruit_VC0706(&cam3SerialConnection);  //and name it "cam3"
 
-SoftwareSerial cam4SerialConnection = SoftwareSerial(68, 69);   //Initialize Camera 4
+SoftwareSerial cam4SerialConnection(68, 69);   //Initialize Camera 4
 Adafruit_VC0706 cam4 = Adafruit_VC0706(&cam4SerialConnection);  //and name it "cam4"
 
 String imageFileNames[4]; // This is an array of the file names of the images that were saved to the SD card
@@ -52,7 +49,7 @@ void setup() {
   tankRelease_servo.write(10);      //Move tank release servo             (DONE)
   driveTank();        //Move tank, drop marker, move tank                 (DONE)
   captureImages();    //Store 4 images to SD card                         (In Progress, hardware problem)
-  transmitImages();   //Transfer 4 images via xBee to ground station      (In Progress, Tyler see my comment ~line 251)
+  //transmitImages();   //Transfer 4 images via xBee to ground station      (In Progress, Tyler see my comment ~line 249)
 }
 
 void initialize() {
@@ -71,7 +68,8 @@ void initialize() {
   pinMode(53, OUTPUT);         //Set the CS Pin as output
   SD.begin(53);                //Initialize the SD CARD READER using pin 53 for CS
   delay(1000); 								 // Time to initialize
-  Serial1.begin(XBEE_BAUD);    //Initialize xBee Serial Connection @ 9600 bps
+  
+  Serial1.begin(9600);    //Initialize xBee Serial Connection @ 9600 bps
 }
 
 void detectLaunch(float threshold) {            //Threshld for detection is in m/s^2
@@ -164,13 +162,7 @@ void driveTank() {          //Three variables are DEFINED at the top of the prog
 }  
 
 void initializeCamera(Adafruit_VC0706 camera) {
-  //check that the card is present
-  if (!SD.begin(53)) {
-    return;
-  }
-  camera.begin();         //Initializes camera, ran once for each camera
-  camera.setImageSize(VC0706_640x480);  
-  delay(3000);            //Needs time to initialize
+  
 }
 
 void captureAndSaveImage(Adafruit_VC0706 camera) {
@@ -179,6 +171,10 @@ void captureAndSaveImage(Adafruit_VC0706 camera) {
     return;
   }
   
+  camera.begin();         //Initializes camera, ran once for each camera
+  camera.setImageSize(VC0706_640x480);  
+  delay(3000);            //Needs time to initialize
+
   camera.takePicture();   //Takes picture with camera
   
   //Create an image with the name IMAGExx.JPG
@@ -214,17 +210,17 @@ void captureAndSaveImage(Adafruit_VC0706 camera) {
 
 void captureImages(){
   // Initialize each camera and take a picture
-  initializeCamera(cam1);
   captureAndSaveImage(cam1);
+  cam1SerialConnection.end();
   
-  initializeCamera(cam2);
   captureAndSaveImage(cam2);
+  cam2SerialConnection.end();
   
-  initializeCamera(cam3);
   captureAndSaveImage(cam3);
+  cam3SerialConnection.end();
   
-  initializeCamera(cam4);
   captureAndSaveImage(cam4);
+  cam4SerialConnection.end();
 }
 
 void transmitPicture(String filename) {
@@ -232,7 +228,7 @@ void transmitPicture(String filename) {
   File imgFile = SD.open(filename, FILE_READ);
   long imgSize = imgFile.size();
   if(imgSize > 0) {
-      Serial1.begin(XBEE_BAUD);
+      Serial1.begin(9600);
       Serial1.println("IMG");
       Serial1.print(imgSize);
       Serial1.print("|");
