@@ -49,7 +49,7 @@ void setup() {
   tankRelease_servo.write(10);      //Move tank release servo             (DONE)
   driveTank();        //Move tank, drop marker, move tank                 (DONE)
   captureImages();    //Store 4 images to SD card                         (In Progress, hardware problem)
-  //transmitImages();   //Transfer 4 images via xBee to ground station      (In Progress, Tyler see my comment ~line 249)
+  transmitImages();   //Transfer 4 images via xBee to ground station      (In Progress, Tyler see my comment ~line 249)
 }
 
 void initialize() {
@@ -160,10 +160,6 @@ void driveTank() {          //Three variables are DEFINED at the top of the prog
   digitalWrite(15, LOW);
   delay(300);
 }  
-
-void initializeCamera(Adafruit_VC0706 camera) {
-  
-}
 
 void captureAndSaveImage(Adafruit_VC0706 camera) {
   //check that the card is present
