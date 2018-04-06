@@ -165,7 +165,7 @@ void captureAndSaveImage(Adafruit_VC0706 camera) {
   
   camera.begin();         //Initializes camera, ran once for each camera
   camera.setImageSize(VC0706_640x480);
-  camera.setCompression(0x35); //Sets the compression rate with a hex code, this is 13x compression  
+  camera.setCompression(0x35); //Sets the compression rate with a byte code, this is 13x compression  
   delay(3000);            //Needs time to initialize
 
   camera.takePicture();   //Takes picture with camera
