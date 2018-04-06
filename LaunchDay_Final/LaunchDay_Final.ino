@@ -23,17 +23,13 @@ Adafruit_MMA8451 mma;         //Create variable mma to be referenced later by ot
 
 SR04 sr04  = SR04(6, 7);      //Initialize UTS and name it "sr04"  (Echo_pin = 6, Trig_pin = 7)
   
-SoftwareSerial cam1SerialConnection(62, 63);   //Initialize Camera 1
-Adafruit_VC0706 cam1 = Adafruit_VC0706(&cam1SerialConnection);  //and name it "cam1"
-  
-SoftwareSerial cam2SerialConnection(64, 65);   //Initialize Camera 2
-Adafruit_VC0706 cam2 = Adafruit_VC0706(&cam2SerialConnection);  //and name it "cam2"
-  
-SoftwareSerial cam3SerialConnection(66, 67);   //Initialize Camera 3
-Adafruit_VC0706 cam3 = Adafruit_VC0706(&cam3SerialConnection);  //and name it "cam3"
+SoftwareSerial cam1SerialConnection(62, 63);   //Initialize Camera 1 connection
 
-SoftwareSerial cam4SerialConnection(68, 69);   //Initialize Camera 4
-Adafruit_VC0706 cam4 = Adafruit_VC0706(&cam4SerialConnection);  //and name it "cam4"
+SoftwareSerial cam2SerialConnection(64, 65);   //Initialize Camera 2 connection
+  
+SoftwareSerial cam3SerialConnection(66, 67);   //Initialize Camera 3 connection
+
+SoftwareSerial cam4SerialConnection(68, 69);   //Initialize Camera 4 connection
 
 String imageFileNames[4]; // This is an array of the file names of the images that were saved to the SD card
 int imageTransmissionRetries = 0;
@@ -168,7 +164,8 @@ void captureAndSaveImage(Adafruit_VC0706 camera) {
   }
   
   camera.begin();         //Initializes camera, ran once for each camera
-  camera.setImageSize(VC0706_640x480);  
+  camera.setImageSize(VC0706_640x480);
+  camera.setCompression(0x35); //Sets the compression rate with a hex code, this is 13x compression  
   delay(3000);            //Needs time to initialize
 
   camera.takePicture();   //Takes picture with camera
@@ -206,15 +203,19 @@ void captureAndSaveImage(Adafruit_VC0706 camera) {
 
 void captureImages(){
   // Initialize each camera and take a picture
+  Adafruit_VC0706 cam1 = Adafruit_VC0706(&cam1SerialConnection);  //start connection cam1
   captureAndSaveImage(cam1);
   cam1SerialConnection.end();
-  
+
+  Adafruit_VC0706 cam2 = Adafruit_VC0706(&cam2SerialConnection);  //start connection cam2
   captureAndSaveImage(cam2);
   cam2SerialConnection.end();
-  
+
+  Adafruit_VC0706 cam3 = Adafruit_VC0706(&cam3SerialConnection);  //start connection cam3
   captureAndSaveImage(cam3);
   cam3SerialConnection.end();
-  
+
+  Adafruit_VC0706 cam4 = Adafruit_VC0706(&cam4SerialConnection);  //start connection cam4
   captureAndSaveImage(cam4);
   cam4SerialConnection.end();
 }
