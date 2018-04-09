@@ -11,7 +11,7 @@
 #define DATA 1  // Image data that should be saved to the image file
 #define SIZE 2  // A number describing the size of the image file
 
-#define READ_BUFFER_SIZE 1000
+#define READ_BUFFER_SIZE 10000
 
 // termios = terminal input output settings
 struct termios SerialPortSettings;
