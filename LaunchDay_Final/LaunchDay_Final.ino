@@ -84,9 +84,12 @@ void detectLaunch(float threshold) {            //Threshld for detection is in m
 
 void detectGround(float threshold) {         //Threshold for detection is in centimeters
   int i = 0;
+  int distance = 300;                   //Temporary variable for distance information from the UTS (in cm)
   bool detected = false;
   while(!detected) {
-    if(sr04.Distance() < threshold) i++;     //I think that when this is "Out of Range" it reports "0".  If so, we need top address that.  We'll check it tomorrow in class.
+    distance = sr04.Distance();         //Read in the distance from the UTS
+    if(distance == 0) distance = 300;   //"Out of Range" returns "0", but we need "Out of Range" to report >200.  I choose 300.  -Bahn
+    if(distance < threshold) i++;     
       else i = 0;
     if(i >= 4) detected = true;
     delay(100);
