@@ -13,8 +13,8 @@
 #include <Wire.h>
 
 #define FORWARD_TIME 5000
-#define SPIN_TIME 500
-#define TURRET_TIME 3000
+#define SPIN_TIME 350
+#define TURRET_TIME 3500
 
 Servo parachute_servo;        //Initialize PARACHUTE Servo
 Servo tankRelease_servo;      //Initialize TANK Release Servo
@@ -27,7 +27,7 @@ SoftwareSerial cam1SerialConnection(62, 63);   //Initialize Camera 1 connection
 
 SoftwareSerial cam2SerialConnection(64, 65);   //Initialize Camera 2 connection
   
-SoftwareSerial cam3SerialConnection(66, 67);   //Initialize Camera 3 connection
+SoftwareSerial cam3SerialConnection(67, 66);   //Initialize Camera 3 connection
 
 SoftwareSerial cam4SerialConnection(68, 69);   //Initialize Camera 4 connection
 
@@ -37,15 +37,15 @@ int imageNumber = 0; // This is the id of the current image we are capturing. Us
 
 void setup() {
   initialize();       //Start everything with nominal values              (In Progress)
-  detectLaunch(24);   //Read MMA for launch acceleration signature        (DONE)
-  delay(40000);       //Wait to clear separation debris, in milliseconds  (DONE)  
-  detectGround(200);  //Read UTS for ground approach signature            (DONE)
-  parachute_servo.write(120);       //Move parachute release servo        (DONE, horn needs reseated)
-  delay(10000);       //Wait to land and settle, in milliseconds          (DONE)
-  tankRelease_servo.write(10);      //Move tank release servo             (DONE)
-  driveTank();        //Move tank, drop marker, move tank                 (DONE)
+  //detectLaunch(24);   //Read MMA for launch acceleration signature        (DONE)
+  //delay(40000);       //Wait to clear separation debris, in milliseconds  (DONE)  
+  //detectGround(200);  //Read UTS for ground approach signature            (DONE)
+  releaseParachute();       //Move parachute release servo                  (DONE)
+  //delay(10000);       //Wait to land and settle, in milliseconds          (DONE)
+  releaseTank();      //Move tank release servo                             (DONE)
+  //driveTank();        //Move tank, drop marker, move tank                 (DONE)
   captureImages();    //Store 4 images to SD card                         (In Progress, hardware problem)
-  transmitImages();   //Transfer 4 images via xBee to ground station      (In Progress, Tyler see my comment ~line 249)
+  transmitImages();   //Transfer 4 images via xBee to ground station      (In Progress)
 }
 
 void initialize() {
@@ -92,6 +92,20 @@ void detectGround(float threshold) {         //Threshold for detection is in cen
     delay(100);
     }
   //if(detected == true) Serial1.println("GROUND DETECTED!");  //Commented out for now... Can add back in for debug...
+}
+
+void releaseParachute() {
+  parachute_servo.write(120);       //Move parachute release servo to unlocked position
+  delay(500);
+  parachute_servo.detach();
+  delay(500);
+}
+
+void releaseTank() {
+  tankRelease_servo.write(10);      //Move tank release servo to released position
+  delay(500);
+  tankRelease_servo.detach();
+  delay(500);
 }
 
 void driveTank() {          //Three variables are DEFINED at the top of the program because they are some of the few things that WILL be changed on launch day
@@ -195,7 +209,10 @@ void captureAndSaveImage(Adafruit_VC0706 camera) {
     buffer = camera.readPicture(bytesToRead);
     imgFile.write(buffer, bytesToRead);
     jpglen -= bytesToRead;
+    imgFile.flush();
+    delay(8);
   }
+  imgFile.flush();
   imgFile.close();
   imageFileNames[imageNumber] = filename;
   imageNumber++;
@@ -226,7 +243,7 @@ void transmitPicture(String filename) {
   long imgSize = imgFile.size();
   if(imgSize > 0) {
       Serial1.begin(9600);
-      Serial1.println("IMG");
+      Serial1.println("|");
       Serial1.print(imgSize);
       Serial1.print("|");
       byte b[1];
@@ -241,7 +258,7 @@ void transmitPicture(String filename) {
     if(imageTransmissionRetries < 3) { // Sometimes the SD card bugs out and says the file is not there when it really isnt. This is needed b/c eventually the SD card does report that the file is there so a few attempts are needed.
      delay(2000); // Wait two seconds for the SD card to catchup
      imageTransmissionRetries++;
-     transmitPicture(filename);  //!!!!!!  RECURSION ALERT !!!!!! RECURSION ALERT !!!!!! RECURSION ALERT !!!!!!
+     transmitPicture(filename);  
     }
   }
   Serial1.flush();
