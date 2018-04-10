@@ -23,9 +23,9 @@ Adafruit_MMA8451 mma;         //Create variable mma to be referenced later by ot
 
 SR04 sr04  = SR04(6, 7);      //Initialize UTS and name it "sr04"  (Echo_pin = 6, Trig_pin = 7)
   
-SoftwareSerial cam1SerialConnection(62, 63);   //Initialize Camera 1 connection
+SoftwareSerial cam1SerialConnection(63, 62);   //Initialize Camera 1 connection
 
-SoftwareSerial cam2SerialConnection(64, 65);   //Initialize Camera 2 connection
+SoftwareSerial cam2SerialConnection(65, 64);   //Initialize Camera 2 connection
   
 SoftwareSerial cam3SerialConnection(67, 66);   //Initialize Camera 3 connection
 
@@ -208,14 +208,11 @@ void captureAndSaveImage(Adafruit_VC0706 camera) {
   // Read all the data up to # bytes!
   while (jpglen > 0) {
     uint8_t *buffer;
-    uint8_t bytesToRead = min(32, jpglen);
+    uint8_t bytesToRead = min(64, jpglen);
     buffer = camera.readPicture(bytesToRead);
     imgFile.write(buffer, bytesToRead);
     jpglen -= bytesToRead;
-    imgFile.flush();
-    delay(8);
   }
-  imgFile.flush();
   imgFile.close();
   imageFileNames[imageNumber] = filename;
   imageNumber++;
