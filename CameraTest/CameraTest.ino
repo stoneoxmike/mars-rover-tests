@@ -87,18 +87,10 @@ void captureAndSaveImage(Adafruit_VC0706 camera) {
   int written = 0;
   while (jpglen > 0) {
     uint8_t *buffer;
-<<<<<<< HEAD
-    uint8_t bytesToRead = min(32, jpglen);
-    buffer = camera.readPicture(bytesToRead);
-    written = imgFile.write(buffer, bytesToRead);
-    jpglen -= bytesToRead;
-    //delay(8);
-=======
     uint8_t bytesToRead = min(64, jpglen);
     buffer = camera.readPicture(bytesToRead);
     written = imgFile.write(buffer, bytesToRead);
     jpglen -= bytesToRead;
->>>>>>> a980561bbd4a1ad916033c1460c6bb79e25a215f
   }
   imgFile.close();
 
@@ -147,11 +139,7 @@ void setup() {
     Adafruit_VC0706 cam1 = Adafruit_VC0706(&cam1Connection);
     captureAndSaveImage(cam1);
     cam1Connection.end();
-<<<<<<< HEAD
     delay(1000);
-=======
-    //delay(1000);
->>>>>>> a980561bbd4a1ad916033c1460c6bb79e25a215f
   }
   if(CAM_2_ENABLED || ALL_CAMS_ENABLED) {
     SoftwareSerial cam2Connection(CAMERA_2_TX_PIN, CAMERA_2_RX_PIN);
@@ -178,7 +166,3 @@ void setup() {
 
 void loop() { // Do nothing.
 }
-<<<<<<< HEAD
-
-=======
->>>>>>> a980561bbd4a1ad916033c1460c6bb79e25a215f
