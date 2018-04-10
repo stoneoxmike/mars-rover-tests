@@ -11,11 +11,7 @@
 #define DATA 1  // Image data that should be saved to the image file
 #define SIZE 2  // A number describing the size of the image file
 
-<<<<<<< HEAD
-
-=======
 #define READ_BUFFER_SIZE 10000
->>>>>>> a980561bbd4a1ad916033c1460c6bb79e25a215f
 
 // termios = terminal input output settings
 struct termios SerialPortSettings;
@@ -25,11 +21,7 @@ char *portname = "/dev/ttyACM0"; // This is the location of the current serial p
 FILE *imageFileHandle; // This is the file handle for the current image file
 
 // Image processing variables
-<<<<<<< HEAD
-char read_buffer[513]; // The buffer than received bytes are read into
-=======
 char read_buffer[READ_BUFFER_SIZE]; // The buffer than received bytes are read into
->>>>>>> a980561bbd4a1ad916033c1460c6bb79e25a215f
 char size_buffer[12]; // The buffer that ASCII characters describing the size of the image file are copied into
 int lastSByte = 0; // The index of the size_buffer that the next ASCII character will be written to (push functionality, ask Tyler).
 int bytes_read = 0; // The count of the number of bytes that were read into the read_buffer
@@ -73,11 +65,6 @@ int connect_serial_port() {
 	SerialPortSettings.c_cc[VTIME] = 0;  /* Don't ever time out   */
 
 	tcsetattr(fd,TCSANOW,&SerialPortSettings); // Apply our changes to the settings
-<<<<<<< HEAD
-
-=======
-	
->>>>>>> a980561bbd4a1ad916033c1460c6bb79e25a215f
 	return fd;
 }
 
@@ -102,15 +89,6 @@ int open_image_file() { // This will open and initialize our image file to be wr
 
 void read_loop() {
 	setbuf(stdout, NULL);
-<<<<<<< HEAD
-	memset(read_buffer, '\0', 513*sizeof(char)); // Clear the read buffer
-	memset(size_buffer, '\0', 12*sizeof(char)); // Clear the size buffer
-	mode = NONE;
-
-	while(bytes_read < 1) {
-		memset(read_buffer, '\0', 513*sizeof(char)); // Clear the read buffer so that only the newly read bytes are in the buffer
-		bytes_read = read(fd,read_buffer,512); // Read the new bytes into the read buffer
-=======
 	memset(read_buffer, '\0', READ_BUFFER_SIZE*sizeof(char)); // Clear the read buffer
 	memset(size_buffer, '\0', 12*sizeof(char)); // Clear the size buffer
 	mode = NONE;
@@ -118,7 +96,6 @@ void read_loop() {
 	while(bytes_read < 1) {
 		memset(read_buffer, '\0', READ_BUFFER_SIZE*sizeof(char)); // Clear the read buffer so that only the newly read bytes are in the buffer
 		bytes_read = read(fd,read_buffer,READ_BUFFER_SIZE-1); // Read the new bytes into the read buffer
->>>>>>> a980561bbd4a1ad916033c1460c6bb79e25a215f
 
 		if(bytes_read > 0) { // if we got bytes, process them
 			bytes_processed = 0; // Reset our processed bytes count
@@ -137,9 +114,6 @@ void read_loop() {
 					}
 				}
 				else if (mode == DATA) { // If we are expecting image data bytes
-<<<<<<< HEAD
-					for(int i = bytes_processed; (i < bytes_read) && (imageBytesRead < imageSize); i++) { // While we still have bytes to process and while the bytes we are processing are still image bytes
-=======
 				    long imageDelta = (imageSize - imageBytesRead); // This gives us the remaining # of bytes needed for the image file
 				    long bytesToProcess = (bytes_read - bytes_processed); // This gives us the remaining number of bytes we have to process
 				    if(bytesToProcess <= imageDelta) {
@@ -155,21 +129,16 @@ void read_loop() {
 				       bytes_processed += imageDelta;
 				    }
 /*					for(int i = bytes_processed; (i < bytes_read) && (imageBytesRead < imageSize); i++) { // While we still have bytes to process and while the bytes we are processing are still image bytes
->>>>>>> a980561bbd4a1ad916033c1460c6bb79e25a215f
+
 						char write_buffer[1];
 						write_buffer[0] = read_buffer[i];
 						fwrite(write_buffer, sizeof(write_buffer), 1, imageFileHandle);
 						imageBytesRead++; // Increment the number of bytes read
 						bytes_processed++; // We processed a byte
-<<<<<<< HEAD
 
-					}
-					if(imageBytesRead >= imageSize) {// Check to see if we have reached the end of the image file
-=======
 					
 					}
 */					if(imageBytesRead >= imageSize) {// Check to see if we have reached the end of the image file
->>>>>>> a980561bbd4a1ad916033c1460c6bb79e25a215f
 						imageNumber++; // Increment the image number
 						mode = NONE; // Change the mode
 						fclose(imageFileHandle); // Close the image file
@@ -193,11 +162,6 @@ void read_loop() {
 						}
 					}
 				}
-<<<<<<< HEAD
-
-=======
-		
->>>>>>> a980561bbd4a1ad916033c1460c6bb79e25a215f
 			}
 			bytes_read = 0;
 		}
@@ -207,11 +171,6 @@ void read_loop() {
 int main()
 {
   fd = connect_serial_port();
-<<<<<<< HEAD
-
-=======
-  
->>>>>>> a980561bbd4a1ad916033c1460c6bb79e25a215f
 /*
   char write_buffer[1] = "B";
   int  bytes_written  =  0 ;
