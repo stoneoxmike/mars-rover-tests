@@ -64,7 +64,8 @@ void initialize() {
   pinMode(53, OUTPUT);         //Set the CS Pin as output
   SD.begin(53);                //Initialize the SD CARD READER using pin 53 for CS
   delay(1000); 								 // Time to initialize
-  
+
+  Serial.begin(9600);  //TESTING ONLY
   Serial1.begin(9600);    //Initialize xBee Serial Connection @ 9600 bps
 }
 
@@ -182,7 +183,6 @@ void captureAndSaveImage(Adafruit_VC0706 camera) {
   
   camera.begin();         //Initializes camera, ran once for each camera
   camera.setImageSize(VC0706_640x480);
-  camera.setCompression(0x15); //Sets the compression rate with a hex code from 0x01 - 0xFF, each 0x01 = 0.25x compression
   delay(3000);            //Needs time to initialize
 
   camera.takePicture();   //Takes picture with camera
@@ -208,7 +208,7 @@ void captureAndSaveImage(Adafruit_VC0706 camera) {
   // Read all the data up to # bytes!
   while (jpglen > 0) {
     uint8_t *buffer;
-    uint8_t bytesToRead = min(64, jpglen);
+    uint8_t bytesToRead = min(32, jpglen);
     buffer = camera.readPicture(bytesToRead);
     imgFile.write(buffer, bytesToRead);
     jpglen -= bytesToRead;
@@ -240,17 +240,21 @@ void captureImages(){
 void transmitPicture(String filename) {
   // Open the file for reading
   File imgFile = SD.open(filename, FILE_READ);
-  long imgSize = imgFile.size();
-  if(imgSize > 0) {
-      Serial1.begin(9600);
-      Serial1.println("|");
-      Serial1.print(imgSize);
+  unsigned long imgSize = imgFile.size();
+  //Serial.println(imgSize);
+  if(imgSize > 0) {     
+      Serial.print(imgSize, DEC);
+      Serial1.print("IMAGE|");
+      Serial1.print(imgSize, DEC);
       Serial1.print("|");
+      delay(100);
       byte b[1];
-      for(long s = 0; s < imgSize; s++) {
+      for(unsigned long s = 0; s < imgSize; s++) {
+      //  Serial.println(s);
         imgFile.read(b, 1);
         Serial1.write(b[0]);
-        delay(10);
+        Serial1.flush();
+        delay(6);
       } 
       imageTransmissionRetries = 0;
   }
@@ -266,9 +270,13 @@ void transmitPicture(String filename) {
 
 void transmitImages(){
   transmitPicture(imageFileNames[0]);
+  delay(2000);
   transmitPicture(imageFileNames[1]);
+  delay(2000);
   transmitPicture(imageFileNames[2]);
+  delay(2000);
   transmitPicture(imageFileNames[3]);
+  delay(2000);
 }
 
 void loop() {}    //leave empty, needed to compile
