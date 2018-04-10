@@ -23,11 +23,19 @@ Adafruit_MMA8451 mma;         //Create variable mma to be referenced later by ot
 
 SR04 sr04  = SR04(6, 7);      //Initialize UTS and name it "sr04"  (Echo_pin = 6, Trig_pin = 7)
   
+<<<<<<< HEAD
 SoftwareSerial cam1SerialConnection(62, 63);   //Initialize Camera 1 connection
 
 SoftwareSerial cam2SerialConnection(64, 65);   //Initialize Camera 2 connection
   
 SoftwareSerial cam3SerialConnection(66, 67);   //Initialize Camera 3 connection
+=======
+SoftwareSerial cam1SerialConnection(63, 62);   //Initialize Camera 1 connection
+
+SoftwareSerial cam2SerialConnection(65, 64);   //Initialize Camera 2 connection
+  
+SoftwareSerial cam3SerialConnection(67, 66);   //Initialize Camera 3 connection
+>>>>>>> a980561bbd4a1ad916033c1460c6bb79e25a215f
 
 SoftwareSerial cam4SerialConnection(68, 69);   //Initialize Camera 4 connection
 
@@ -45,7 +53,11 @@ void setup() {
   releaseTank();      //Move tank release servo                             (DONE)
   //driveTank();        //Move tank, drop marker, move tank                 (DONE)
   captureImages();    //Store 4 images to SD card                         (In Progress, hardware problem)
+<<<<<<< HEAD
   transmitImages();   //Transfer 4 images via xBee to ground station      (In Progress, Tyler see my comment ~line 249)
+=======
+  transmitImages();   //Transfer 4 images via xBee to ground station      (In Progress)
+>>>>>>> a980561bbd4a1ad916033c1460c6bb79e25a215f
 }
 
 void initialize() {
@@ -84,9 +96,18 @@ void detectLaunch(float threshold) {            //Threshld for detection is in m
 
 void detectGround(float threshold) {         //Threshold for detection is in centimeters
   int i = 0;
+<<<<<<< HEAD
   bool detected = false;
   while(!detected) {
     if(sr04.Distance() < threshold) i++;     //I think that when this is "Out of Range" it reports "0".  If so, we need top address that.  We'll check it tomorrow in class.
+=======
+  int distance = 300;                   //Temporary variable for distance information from the UTS (in cm)
+  bool detected = false;
+  while(!detected) {
+    distance = sr04.Distance();         //Read in the distance from the UTS
+    if(distance == 0) distance = 300;   //"Out of Range" returns "0", but we need "Out of Range" to report >200.  I choose 300.  -Bahn
+    if(distance < threshold) i++;     
+>>>>>>> a980561bbd4a1ad916033c1460c6bb79e25a215f
       else i = 0;
     if(i >= 4) detected = true;
     delay(100);
@@ -205,6 +226,7 @@ void captureAndSaveImage(Adafruit_VC0706 camera) {
   // Read all the data up to # bytes!
   while (jpglen > 0) {
     uint8_t *buffer;
+<<<<<<< HEAD
     uint8_t bytesToRead = min(32, jpglen);
     buffer = camera.readPicture(bytesToRead);
     imgFile.write(buffer, bytesToRead);
@@ -213,6 +235,13 @@ void captureAndSaveImage(Adafruit_VC0706 camera) {
     delay(8);
   }
   imgFile.flush();
+=======
+    uint8_t bytesToRead = min(64, jpglen);
+    buffer = camera.readPicture(bytesToRead);
+    imgFile.write(buffer, bytesToRead);
+    jpglen -= bytesToRead;
+  }
+>>>>>>> a980561bbd4a1ad916033c1460c6bb79e25a215f
   imgFile.close();
   imageFileNames[imageNumber] = filename;
   imageNumber++;
