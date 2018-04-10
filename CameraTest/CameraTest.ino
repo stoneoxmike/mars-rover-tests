@@ -1,12 +1,13 @@
 #include <Adafruit_VC0706.h>
 #include <SPI.h>
 #include <SD.h>
+#include <Servo.h>
 
 #define CAM_1_ENABLED false
 #define CAM_2_ENABLED false
 #define CAM_3_ENABLED false
-#define CAM_4_ENABLED false
-#define ALL_CAMS_ENABLED false
+#define CAM_4_ENABLED true
+#define ALL_CAMS_ENABLED true
 
 //TTL Camera Pins
 #define CAMERA_1_TX_PIN 63 //Connect this pin to "TX" of the TTL camera (A9)
@@ -15,15 +16,40 @@
 #define CAMERA_2_RX_PIN 64 // (A11)
 #define CAMERA_3_TX_PIN 67 // (A12)
 #define CAMERA_3_RX_PIN 66 // (A13)
-#define CAMERA_4_TX_PIN 69 // (A14)
-#define CAMERA_4_RX_PIN 68 // (A15)
+#define CAMERA_4_TX_PIN 68 // (A14)
+#define CAMERA_4_RX_PIN 69 // (A15)
 
 #define BAUD_RATE 9600
 
 // This is the pin number that is connected to the "CS" pin on the SD card shield. Don't change this.
 #define chipSelect 53
 
+Servo parachute_servo;
+Servo tankRelease_servo;
+
 void captureAndSaveImage(Adafruit_VC0706 camera) {
+  // Try to locate the camera
+  if (camera.begin()) {
+    Serial.println("Camera Found:");
+  } else {
+    Serial.println("No camera found?");
+    return;
+  }
+  
+  // Print out the camera version information (optional)
+  char *reply = camera.getVersion();
+  if (reply == 0) {
+    Serial.print("Failed to get version");
+  } else {
+    Serial.println("-----------------");
+    Serial.print(reply);
+    Serial.println("-----------------");
+  }
+
+  
+  camera.setImageSize(VC0706_640x480);        // biggest
+  Serial.println("Finished initializing camera.");
+  
   Serial.println("Snap in 3 secs...");
   delay(3000);
 
@@ -58,11 +84,12 @@ void captureAndSaveImage(Adafruit_VC0706 camera) {
   int32_t time = millis();
   pinMode(8, OUTPUT);
   // Read all the data up to # bytes!
+  int written = 0;
   while (jpglen > 0) {
     uint8_t *buffer;
-    uint8_t bytesToRead = min(32, jpglen);
+    uint8_t bytesToRead = min(64, jpglen);
     buffer = camera.readPicture(bytesToRead);
-    imgFile.write(buffer, bytesToRead);
+    written = imgFile.write(buffer, bytesToRead);
     jpglen -= bytesToRead;
   }
   imgFile.close();
@@ -72,31 +99,26 @@ void captureAndSaveImage(Adafruit_VC0706 camera) {
   Serial.print(time); Serial.println(" ms elapsed");
 }
 
-void initializeCamera(Adafruit_VC0706 camera) {
-  // Try to locate the camera
-  if (camera.begin()) {
-    Serial.println("Camera Found:");
-  } else {
-    Serial.println("No camera found?");
-    return;
-  }
-  
-  // Print out the camera version information (optional)
-  char *reply = camera.getVersion();
-  if (reply == 0) {
-    Serial.print("Failed to get version");
-  } else {
-    Serial.println("-----------------");
-    Serial.print(reply);
-    Serial.println("-----------------");
-  }
-
-  
-  camera.setImageSize(VC0706_640x480);        // biggest
-  Serial.println("Finished initializing camera.");
-}
-
 void setup() {
+  parachute_servo.attach(9);      //Use pin 9
+  parachute_servo.write(45);    
+
+  tankRelease_servo.attach(10);   //Use pin 10
+  tankRelease_servo.write(100);   
+
+  delay(1000);
+
+  parachute_servo.write(120);
+  tankRelease_servo.write(10);
+
+  delay(3000);
+  
+  parachute_servo.detach();
+  tankRelease_servo.detach();
+
+  delay(3000);
+  
+  
   pinMode(53, OUTPUT); // Initialize the slave select pin for SPI
   
   Serial.begin(BAUD_RATE);
@@ -113,31 +135,34 @@ void setup() {
 
   // Test each camera that is enabled
   if(CAM_1_ENABLED || ALL_CAMS_ENABLED) {
-    SoftwareSerial cam1Connection = SoftwareSerial(CAMERA_1_TX_PIN, CAMERA_1_RX_PIN);
+    SoftwareSerial cam1Connection(CAMERA_1_TX_PIN, CAMERA_1_RX_PIN);
     Adafruit_VC0706 cam1 = Adafruit_VC0706(&cam1Connection);
-    initializeCamera(cam1);
     captureAndSaveImage(cam1);
+    cam1Connection.end();
+    //delay(1000);
   }
   if(CAM_2_ENABLED || ALL_CAMS_ENABLED) {
-    SoftwareSerial cam2Connection = SoftwareSerial(CAMERA_2_TX_PIN, CAMERA_2_RX_PIN);
+    SoftwareSerial cam2Connection(CAMERA_2_TX_PIN, CAMERA_2_RX_PIN);
     Adafruit_VC0706 cam2 = Adafruit_VC0706(&cam2Connection);
-    initializeCamera(cam2);
     captureAndSaveImage(cam2);
+    cam2Connection.end();
+    delay(1000);
   }
   if(CAM_3_ENABLED || ALL_CAMS_ENABLED) {
-    SoftwareSerial cam3Connection = SoftwareSerial(CAMERA_3_TX_PIN, CAMERA_3_RX_PIN);
+    SoftwareSerial cam3Connection(CAMERA_3_TX_PIN, CAMERA_3_RX_PIN);
     Adafruit_VC0706 cam3 = Adafruit_VC0706(&cam3Connection);
-    initializeCamera(cam3);
     captureAndSaveImage(cam3);
+    cam3Connection.end();
+    delay(1000);
   }
   if(CAM_4_ENABLED || ALL_CAMS_ENABLED) {
-    SoftwareSerial cam4Connection = SoftwareSerial(CAMERA_4_TX_PIN, CAMERA_4_RX_PIN);
+    SoftwareSerial cam4Connection(CAMERA_4_TX_PIN, CAMERA_4_RX_PIN);
     Adafruit_VC0706 cam4 = Adafruit_VC0706(&cam4Connection);
-    initializeCamera(cam4);
     captureAndSaveImage(cam4);
+    cam4Connection.end();
+    delay(1000);
   }
 }
 
 void loop() { // Do nothing.
 }
-
