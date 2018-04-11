@@ -43,21 +43,20 @@ void loop() {
   Serial.println(filename);
   unsigned long t = millis();
 
-  if(xBee.available() > 0){
+  while(xBee.available() > 0){ //the lander is transmitting 1K
     byte b = xBee.read();
     img.write(b);
     img.flush();
-    i++;
-    Serial.println(i);
+    i++;  
     t = millis();
 
-    if(millis() - t > 1000) {
-      if(millis() - t < 5000) {
-        if(i < 1000) {
-         xBee.write("ERROR, RESEND");
+    if(millis() - t > 1000) {          //waits for delay of 1 second
+      if(millis() - t < 5000) {        //make sure there isn't a delay of 5 seconds
+        if(img.size - i > 0) {         //check that 1K bytes were written
+          xBee.write("ERROR, RESEND"); //sends back stuff if not
         }
-        i = 0;
-      } else {
+        t = millis();                  //reset t to start counting for delay again
+      } else {                         //if there is a delay of 5 seconds, end reception
         img.close();
         Serial.println("File Transfer REALLY Complete.");
       }
