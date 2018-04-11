@@ -42,18 +42,25 @@ void loop() {
   Serial.print("Opening Image File: ");
   Serial.println(filename);
   unsigned long t = millis();
-  
-  while(millis() - t < 1000){
-    if(xBee.available() > 0){
-      byte b = xBee.read();
-      img.write(b);
-      i++;
-      Serial.println(i);
-      delay(1);
-      t = millis();
+
+  if(xBee.available() > 0){
+    byte b = xBee.read();
+    img.write(b);
+    img.flush();
+    i++;
+    Serial.println(i);
+    t = millis();
+
+    if(millis() - t > 1000) {
+      if(millis() - t < 5000) {
+        if(i < 1000) {
+         xBee.write("ERROR, RESEND");
+        }
+        i = 0;
+      } else {
+        img.close();
+        Serial.println("File Transfer REALLY Complete.");
+      }
     }
   }
-  img.close();
-  Serial.println("File Transfer REALLY Complete.");
 }
-

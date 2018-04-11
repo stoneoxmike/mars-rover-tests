@@ -65,7 +65,7 @@ void initialize() {
   SD.begin(53);                //Initialize the SD CARD READER using pin 53 for CS
   delay(1000); 								 // Time to initialize
 
-  Serial.begin(9600);  //TESTING ONLY
+  Serial.begin(115200);  //TESTING ONLY
   Serial1.begin(9600);    //Initialize xBee Serial Connection @ 9600 bps
 }
 
@@ -240,43 +240,33 @@ void captureImages(){
 void transmitPicture(String filename) {
   // Open the file for reading
   File imgFile = SD.open(filename, FILE_READ);
-  unsigned long imgSize = imgFile.size();
-  //Serial.println(imgSize);
+  unsigned int imgSize = imgFile.size();
   if(imgSize > 0) {     
-      Serial.print(imgSize, DEC);
-      Serial1.print("IMAGE|");
-      Serial1.print(imgSize, DEC);
-      Serial1.print("|");
-      delay(100);
-      byte b[1];
-      for(unsigned long s = 0; s < imgSize; s++) {
-      //  Serial.println(s);
+    delay(100);
+    byte b[1];
+    for(unsigned int s = 0; s < (imgSize/1000); s++) {
+      for(int i = 0; i < 1000; i++) {
         imgFile.read(b, 1);
         Serial1.write(b[0]);
         Serial1.flush();
-        delay(6);
-      } 
-      imageTransmissionRetries = 0;
+      }
+      delay(1500);
+      if(Serial1.available() != 0) {
+        //reset somehow
+      }
+    } 
   }
-  else {
-    if(imageTransmissionRetries < 3) { // Sometimes the SD card bugs out and says the file is not there when it really isnt. This is needed b/c eventually the SD card does report that the file is there so a few attempts are needed.
-     delay(2000); // Wait two seconds for the SD card to catchup
-     imageTransmissionRetries++;
-     transmitPicture(filename);  
-    }
-  }
-  Serial1.flush();
 }
 
 void transmitImages(){
   transmitPicture(imageFileNames[0]);
-  delay(2000);
+  delay(5000);
   transmitPicture(imageFileNames[1]);
-  delay(2000);
+  delay(5000);
   transmitPicture(imageFileNames[2]);
-  delay(2000);
+  delay(5000);
   transmitPicture(imageFileNames[3]);
-  delay(2000);
+  delay(5000);
 }
 
 void loop() {}    //leave empty, needed to compile
