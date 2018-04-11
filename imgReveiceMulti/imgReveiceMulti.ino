@@ -4,8 +4,6 @@
 
 SoftwareSerial xBee(5, 6); // RX, TX
 
-
-
 File img;
 
 void setup() {
@@ -42,33 +40,35 @@ void loop() {
   Serial.print("Opening Image File: ");
   Serial.println(filename);
   unsigned long t = millis();
-  int ender = 0;
+  int ender = 0;                        //This counter will be used to check the last two bits of the file for EOF (FFD9)
 
-  while(millis()-t < 450){ //the lander is transmitting 1K
+  //Now we will receive 1k from the lander
+  while(millis()-t < 450){              //Is this condition still needed with EOF check?  IF so, why 450?  -Bahn
     if(xBee.available() > 0) {
-      byte b = xBee.read();
-      if (b == 217) ender++;
-      if (ender == 2) break; 
-      ender = 0;
-      if (b == 255) ender++;
+      byte b = xBee.read();             
       
-      img.write(b);
+      if (b == 217) ender++;            //Check for the final bit
+      if (ender == 2) break;            //check if the final TWO bits have arrived
+      ender = 0;                        //reset the EOF counter
+      if (b == 255) ender++;            //Check if the second to last byte has arrived
+      
+      img.write(b);                     //MICHAEL, this should happen BEFORE the 4 lines for EOF checks above, yes?  Otherwise be don't write the last byte?
       i++;  
       Serial.print(i);
       Serial.print(", ");
       Serial.print(b);
       Serial.print(", ");
       Serial.println(ender);
-      t = millis();                  //reset t to start counting for delay again
-    } else if((millis() - t) > 75) {          //waits for delay of 1 second
-        if((1000 - i) > 0 && (1000 - i) < 1000) {         //check that 1K bytes were written
-          xBee.write("X"); //sends back stuff if not
+      t = millis();                                   //reset t to start counting for delay again
+    } else if((millis() - t) > 75) {                  //waits for delay of 1 second
+        if((1000 - i) > 0 && (1000 - i) < 1000) {     //check that 1K bytes were written
+          xBee.write("X");                            //sends back stuff if not
           Serial.println("error");
           img.seek(img.size() - i);
         }
       i = 0;
       t = millis();
-      img.flush();
+      img.flush();          //store the received 1k of data to the SD card
     }
   }
   img.close();
