@@ -42,24 +42,30 @@ void loop() {
   Serial.print("Opening Image File: ");
   Serial.println(filename);
   unsigned long t = millis();
+  boolean xbeeAvailable = 0;
 
-  while(xBee.available() > 0){ //the lander is transmitting 1K
-    byte b = xBee.read();
-    img.write(b);
-    img.flush();
-    i++;  
-    t = millis();
+  while(millis()-t < 4500){ //the lander is transmitting 1K
+    if(xBee.available() > 0) {
+      byte b = xBee.read();
+      img.write(b);
+      //img.flush();
+      i++;  
+      Serial.println(i);
 
-    if(millis() - t > 1000) {          //waits for delay of 1 second
-      if(millis() - t < 5000) {        //make sure there isn't a delay of 5 seconds
-        if(img.size() - i > 0) {         //check that 1K bytes were written
+      if(millis() - t > 1000) {          //waits for delay of 1 second
+        if(1000 - i != 0) {         //check that 1K bytes were written
           xBee.write("ERROR, RESEND"); //sends back stuff if not
+          img.seek(img.size() - i);
+          delay(100);
         }
-        t = millis();                  //reset t to start counting for delay again
-      } else {                         //if there is a delay of 5 seconds, end reception
-        img.close();
-        Serial.println("File Transfer REALLY Complete.");
+        
+        i = 0;
+        Serial.print("i is ");
+        Serial.println(i);
       }
+      t = millis();                  //reset t to start counting for delay again
     }
   }
+  img.close();
+  Serial.println("File Transfer REALLY Complete.");
 }

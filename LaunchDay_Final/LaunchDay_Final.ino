@@ -248,11 +248,14 @@ void transmitPicture(String filename) {
       for(int i = 0; i < 1000; i++) {                  //send 1K bytes
         imgFile.read(b, 1);
         Serial1.write(b[0]);
-        Serial1.flush();
+        delay(10);
       }
+      Serial.println(s);
       delay(1500);                                     //after packet is sent, tell other xbee to check
       if(Serial1.available() != 0) {                   //check that no error is coming back
-        //resend somehow, still thinking about this
+        //resend packet
+        imgFile.seek(imgFile.position() - 1000);
+        s--;
       }
     }
     for(unsigned int f = 0; f < imgSize%1000; f++) {   //send whatever is left from the 1K chunks
