@@ -52,7 +52,7 @@ void loop() {
 
     if(millis() - t > 1000) {          //waits for delay of 1 second
       if(millis() - t < 5000) {        //make sure there isn't a delay of 5 seconds
-        if(img.size - i > 0) {         //check that 1K bytes were written
+        if(img.size() - i > 0) {         //check that 1K bytes were written
           xBee.write("ERROR, RESEND"); //sends back stuff if not
         }
         t = millis();                  //reset t to start counting for delay again
