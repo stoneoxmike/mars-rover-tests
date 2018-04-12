@@ -85,10 +85,10 @@ void loop() {
         }
         r++;  //increment packet counter
         Serial.println("check");
+        img.flush();
       }
-      i = 0;          //reset counters and flush the file
+      i = 0;          //reset counters
       t = millis();
-      img.flush();
     }
   }
   img.close();
