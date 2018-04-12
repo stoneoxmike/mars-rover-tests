@@ -42,29 +42,37 @@ void loop() {
   Serial.print("Opening Image File: ");
   Serial.println(filename);
   unsigned long t = millis();
-  int ender = 0;
+  int eof = 0;
+  byte packet[100];
 
   while(millis()-t < 450){ //the lander is transmitting 1K
     if(xBee.available() > 0) {
-      byte b = xBee.read();
-      if (b == 217) ender++;
-      if (ender == 2) break; 
-      ender = 0;
-      if (b == 255) ender++;
+      packet[i] = xBee.read();
       
-      img.write(b);
+      if (packet[i] == 217) eof++;
+      if (eof == 2) break; 
+      eof = 0;
+      if (packet[i] == 255) eof++;
+            
       i++;  
       Serial.print(i);
-      Serial.print(", ");
-      Serial.print(b);
-      Serial.print(", ");
-      Serial.println(ender);
+      Serial.print(",    ");
+      Serial.print(packet[i]);
+      Serial.print(",    ");
+      Serial.print(eof);
+      Serial.print(",    ");
       t = millis();                  //reset t to start counting for delay again
-    } else if((millis() - t) > 75) {          //waits for delay of 1 second
-        if((1000 - i) > 0 && (1000 - i) < 1000) {         //check that 1K bytes were written
-          xBee.write("X"); //sends back stuff if not
-          Serial.println("error");
-          img.seek(img.size() - i);
+    } else if((millis() - t) > 40) {          //waits for delay of 1 second
+        if((100 - i) > 0 && (100 - i) < 100) {         //check that 1K bytes were written
+          xBee.write("0"); //sends back zero if not
+          Serial.println("error");  
+        }
+        else if((100 - i) == 0) {
+          xBee.write("1");
+          for(int k = 0; k < 100; k++){
+            img.write(packet[k]);
+            delay(8);  
+          }
         }
       i = 0;
       t = millis();

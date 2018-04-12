@@ -23,14 +23,6 @@ Adafruit_MMA8451 mma;         //Create variable mma to be referenced later by ot
 
 SR04 sr04  = SR04(6, 7);      //Initialize UTS and name it "sr04"  (Echo_pin = 6, Trig_pin = 7)
   
-SoftwareSerial cam1SerialConnection(63, 62);   //Initialize Camera 1 connection
-
-SoftwareSerial cam2SerialConnection(65, 64);   //Initialize Camera 2 connection
-  
-SoftwareSerial cam3SerialConnection(67, 66);   //Initialize Camera 3 connection
-
-SoftwareSerial cam4SerialConnection(68, 69);   //Initialize Camera 4 connection
-
 String imageFileNames[4]; // This is an array of the file names of the images that were saved to the SD card
 int imageTransmissionRetries = 0;
 int imageNumber = 0; // This is the id of the current image we are capturing. Used for storing the name of the image file into the above array
@@ -208,10 +200,12 @@ void captureAndSaveImage(Adafruit_VC0706 camera) {
   // Read all the data up to # bytes!
   while (jpglen > 0) {
     uint8_t *buffer;
-    uint8_t bytesToRead = min(32, jpglen);
+    uint8_t bytesToRead = min(64, jpglen);
     buffer = camera.readPicture(bytesToRead);
     imgFile.write(buffer, bytesToRead);
     jpglen -= bytesToRead;
+    delay(1);
+    imgFile.flush();
   }
   imgFile.close();
   imageFileNames[imageNumber] = filename;
@@ -220,18 +214,22 @@ void captureAndSaveImage(Adafruit_VC0706 camera) {
 
 void captureImages(){
   // Initialize each camera and take a picture
+  SoftwareSerial cam1SerialConnection(63, 62);   //Initialize Camera 1 connection
   Adafruit_VC0706 cam1 = Adafruit_VC0706(&cam1SerialConnection);  //start connection cam1
   captureAndSaveImage(cam1);
   cam1SerialConnection.end();
 
+  SoftwareSerial cam2SerialConnection(65, 64);   //Initialize Camera 2 connection
   Adafruit_VC0706 cam2 = Adafruit_VC0706(&cam2SerialConnection);  //start connection cam2
   captureAndSaveImage(cam2);
   cam2SerialConnection.end();
 
+  SoftwareSerial cam3SerialConnection(67, 66);   //Initialize Camera 3 connection
   Adafruit_VC0706 cam3 = Adafruit_VC0706(&cam3SerialConnection);  //start connection cam3
   captureAndSaveImage(cam3);
   cam3SerialConnection.end();
 
+  SoftwareSerial cam4SerialConnection(68, 69);   //Initialize Camera 4 connection
   Adafruit_VC0706 cam4 = Adafruit_VC0706(&cam4SerialConnection);  //start connection cam4
   captureAndSaveImage(cam4);
   cam4SerialConnection.end();
@@ -251,28 +249,34 @@ void transmitPicture(String filename) {
   
   if(imgSize > 0) {     
     byte b[1];
-    for(unsigned int s = 0; s < (imgSize/1000); s++) { //divide file into 1K sized chunks
-      Serial.println(s);
-      for(int i = 0; i < 1000; i++) {                  //send 1K bytes
+    byte packet[100];
+    for(unsigned int s = 0; s < (imgSize/100); s++) { //divide file into 1K sized chunks
+      for(int i = 0; i < 100; i++) {                  //send 1K bytes
         imgFile.read(b, 1);
         Serial1.write(b[0]);
+        packet[i] = b[0];
         delay(8);
       }
-      delay(100);                                     //after packet is sent, tell other xbee to check
-      if(Serial1.available()) {                   //check that no error is coming back
-        //resend packet
-        Serial.println("error detected");
-        serialClear();
-        imgFile.seek(imgFile.position() - 1000);
-        --s;
-      }
+      delay(50);                                   //after packet is sent, tell other xbee to check
+      while(
+        while(Serial1.read() != 1) {                   //check that no error is coming back
+          //resend packet
+          Serial.println("error detected");
+          serialClear();
+          for(int m = 0; m < 100; m++) {                  //send 1K bytes
+            Serial1.write(packet[m]);
+            delay(8);
+          }
+        }
+        
     }
     Serial.println("last packet");
-    for(unsigned int f = 0; f < imgSize%1000; f++) {   //send whatever is left from the 1K chunks
+    for(unsigned int f = 0; f < imgSize%100; f++) {   //send whatever is left from the 1K chunks
       imgFile.read(b, 1);
       Serial1.write(b[0]);
-      delay(10);
+      delay(8);
     }
+    Serial1.flush();
   }
 }
 
