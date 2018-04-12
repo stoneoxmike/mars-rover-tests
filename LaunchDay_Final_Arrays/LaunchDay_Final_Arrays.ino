@@ -273,6 +273,7 @@ void transmitPicture(String filename) {
             Serial1.write(packet[m]);
             delay(8);
           }
+          delay(50);
         }
         else if(Serial1.read() == 49) {
           Serial.println("check");
