@@ -204,8 +204,6 @@ void captureAndSaveImage(Adafruit_VC0706 camera) {
     buffer = camera.readPicture(bytesToRead);
     imgFile.write(buffer, bytesToRead);
     jpglen -= bytesToRead;
-    delay(1);
-    imgFile.flush();
   }
   imgFile.close();
   imageFileNames[imageNumber] = filename;
@@ -246,32 +244,45 @@ void transmitPicture(String filename) {
   // Open the file for reading
   File imgFile = SD.open(filename, FILE_READ);
   unsigned int imgSize = imgFile.size();
+  boolean While = 1;
   
   if(imgSize > 0) {     
     byte b[1];
     byte packet[100];
     for(unsigned int s = 0; s < (imgSize/100); s++) { //divide file into 1K sized chunks
-      for(int i = 0; i < 100; i++) {                  //send 1K bytes
+      for(int i = 0; i < 100; i++) {                  //send 100 bytes
         imgFile.read(b, 1);
         Serial1.write(b[0]);
         packet[i] = b[0];
         delay(8);
       }
+      
+      Serial.print("Sent packet ");
+      Serial.print(s);
+      Serial.print(" of ");
+      Serial.print((imgSize/100) + 1);
+      Serial.print(", success: ");
+      
       delay(50);                                   //after packet is sent, tell other xbee to check
-      while(
-        while(Serial1.read() != 1) {                   //check that no error is coming back
-          //resend packet
-          Serial.println("error detected");
+      while(While == 1) {
+        if(Serial1.read() != 49 && Serial1.read() != -1) {                   //check that no error is coming back
+          //resend packet(" packets left in file ");
+          Serial.println("ERROR: failed to send, retrying");
           serialClear();
-          for(int m = 0; m < 100; m++) {                  //send 1K bytes
+          for(int m = 0; m < 100; m++) {                  //resend 100 bytes
             Serial1.write(packet[m]);
             delay(8);
           }
         }
-        
+        else if(Serial1.read() == 49) {
+          Serial.println("check");
+          serialClear();
+          break;
+        }
+      }
     }
-    Serial.println("last packet");
-    for(unsigned int f = 0; f < imgSize%100; f++) {   //send whatever is left from the 1K chunks
+    Serial.println("Sending last packet...");
+    for(unsigned int f = 0; f < imgSize%100; f++) {   //send whatever is left from the 100 byte chunks
       imgFile.read(b, 1);
       Serial1.write(b[0]);
       delay(8);
@@ -281,12 +292,16 @@ void transmitPicture(String filename) {
 }
 
 void transmitImages(){
+  Serial.println("Sending image 1...");
   transmitPicture(imageFileNames[0]);
   delay(500);
+  Serial.println("Sending image 2...");
   transmitPicture(imageFileNames[1]);
   delay(500);
+  Serial.println("Sending image 3...");
   transmitPicture(imageFileNames[2]);
   delay(500);
+  Serial.println("Sending image 4..");
   transmitPicture(imageFileNames[3]);
   delay(500);
 }

@@ -22,6 +22,7 @@ void setup() {
 }
 
 void loop() {
+  Serial.print("Waiting for xBee connection...");
   while(xBee.available() == 0);   //wait for data to begin streaming in
   Serial.println("xBee data is available");
   
@@ -42,43 +43,55 @@ void loop() {
   Serial.print("Opening Image File: ");
   Serial.println(filename);
   unsigned long t = millis();
-  int eof = 0;
-  byte packet[100];
+  int eof = 0;  //end of file signifier
+  byte packet[100];  //array of packet bytes
+  unsigned int r = 1;  //packet counter
+  int c = 1;  //file counter
 
-  while(millis()-t < 450){ //the lander is transmitting 1K
+  while(millis()-t < 450){ //the lander is transmitting the file
     if(xBee.available() > 0) {
-      packet[i] = xBee.read();
-      
-      if (packet[i] == 217) eof++;
+      packet[i] = xBee.read();  //read xbee data to next position of packet
+
+      //check for the end of file signature
+      if (packet[i] == 217) eof++;  
       if (eof == 2) break; 
       eof = 0;
       if (packet[i] == 255) eof++;
             
-      i++;  
-      Serial.print(i);
-      Serial.print(",    ");
-      Serial.print(packet[i]);
-      Serial.print(",    ");
-      Serial.print(eof);
-      Serial.print(",    ");
+      i++;
+
+      if(i%100 == 0) {  //send serial info every 100 bytes
+        Serial.print(r);
+        Serial.print(" packet(s) recieved, last byte contains ");
+        Serial.print(packet[0]);
+        Serial.print(", around ");
+        Serial.print(490 - r);
+        Serial.print(" packets left ");
+        Serial.print(c);
+        Serial.print(", packet written: ");
+      }
+      
       t = millis();                  //reset t to start counting for delay again
-    } else if((millis() - t) > 40) {          //waits for delay of 1 second
-        if((100 - i) > 0 && (100 - i) < 100) {         //check that 1K bytes were written
-          xBee.write("0"); //sends back zero if not
-          Serial.println("error");  
+    } 
+    else if((millis() - t) > 40) {          //waits for delay of 1 second
+      if((100 - i) > 0 && (100 - i) < 100) {         //check that 100 bytes were written
+        xBee.write(48); //sends back zero if not
+        Serial.println("ERROR: packet not complete, retrying");  
+      }
+      else if((100 - i) == 0) {   //if packet is full, write to the SD card and confirm
+        xBee.write(49);
+        for(int k = 0; k < 100; k++) {
+          img.write(packet[k]); 
         }
-        else if((100 - i) == 0) {
-          xBee.write("1");
-          for(int k = 0; k < 100; k++){
-            img.write(packet[k]);
-            delay(8);  
-          }
-        }
-      i = 0;
+        r++;  //increment packet counter
+        Serial.println("check");
+      }
+      i = 0;          //reset counters and flush the file
       t = millis();
       img.flush();
     }
   }
   img.close();
-  Serial.println("File Transfer REALLY Complete.");
+  c++;  //increment file counter
+  Serial.println("File Transfer Complete.");
 }
