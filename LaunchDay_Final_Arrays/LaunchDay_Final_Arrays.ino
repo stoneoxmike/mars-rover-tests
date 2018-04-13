@@ -28,7 +28,7 @@ int imageTransmissionRetries = 0;
 int imageNumber = 0; // This is the id of the current image we are capturing. Used for storing the name of the image file into the above array
 
 void setup() {
-  initialize();       //Start everything with nominal values              (In Progress)
+  initialize();       //Start everything with nominal values                (DONE) 
   //detectLaunch(24);   //Read MMA for launch acceleration signature        (DONE)
   //delay(40000);       //Wait to clear separation debris, in milliseconds  (DONE)  
   //detectGround(200);  //Read UTS for ground approach signature            (DONE)
@@ -36,8 +36,8 @@ void setup() {
   //delay(10000);       //Wait to land and settle, in milliseconds          (DONE)
   releaseTank();      //Move tank release servo                             (DONE)
   //driveTank();        //Move tank, drop marker, move tank                 (DONE)
-  captureImages();    //Store 4 images to SD card                         (In Progress, hardware problem)
-  transmitImages();   //Transfer 4 images via xBee to ground station      (In Progress)
+  captureImages();    //Store 4 images to SD card                           (DONE)
+  transmitImages();   //Transfer 4 images via xBee to ground station        (DONE) - With 37 hours to spare!
 }
 
 void initialize() {
@@ -200,10 +200,11 @@ void captureAndSaveImage(Adafruit_VC0706 camera) {
   // Read all the data up to # bytes!
   while (jpglen > 0) {
     uint8_t *buffer;
-    uint8_t bytesToRead = min(64, jpglen);
+    uint8_t bytesToRead = min(32, jpglen);
     buffer = camera.readPicture(bytesToRead);
     imgFile.write(buffer, bytesToRead);
     jpglen -= bytesToRead;
+    delay(1);
   }
   imgFile.close();
   imageFileNames[imageNumber] = filename;
@@ -231,6 +232,7 @@ void captureImages(){
   Adafruit_VC0706 cam4 = Adafruit_VC0706(&cam4SerialConnection);  //start connection cam4
   captureAndSaveImage(cam4);
   cam4SerialConnection.end();
+  
 }
 
 void serialClear() {
@@ -244,7 +246,7 @@ void transmitPicture(String filename) {
   // Open the file for reading
   File imgFile = SD.open(filename, FILE_READ);
   unsigned int imgSize = imgFile.size();
-  boolean While = 1;
+  //boolean While = 1;
   
   if(imgSize > 0) {     
     byte b[1];
@@ -263,9 +265,11 @@ void transmitPicture(String filename) {
       Serial.print((imgSize/100) + 1);
       Serial.print(", success: ");
       
-      delay(50);                                   //after packet is sent, tell other xbee to check
-      while(While == 1) {
-        if(Serial1.read() != 49 && Serial1.read() != -1) {                   //check that no error is coming back
+      //delay(50);                                   //after packet is sent, tell other xbee to check
+      while(Serial1.available() == 0);          //Better delay for this situation
+      while(1) {
+        byte reply = Serial1.read();
+        if(reply == 48) {                   //check that no error is coming back
           //resend packet(" packets left in file ");
           Serial.println("ERROR: failed to send, retrying");
           serialClear();
@@ -273,9 +277,10 @@ void transmitPicture(String filename) {
             Serial1.write(packet[m]);
             delay(8);
           }
-          delay(50);
+          //delay(50);
+          while(Serial1.available() == 0);
         }
-        else if(Serial1.read() == 49) {
+        else if(reply == 49) {
           Serial.println("check");
           serialClear();
           break;
@@ -289,6 +294,7 @@ void transmitPicture(String filename) {
       delay(8);
     }
     Serial1.flush();
+    serialClear();
   }
 }
 
@@ -299,6 +305,7 @@ void transmitImages(){
   Serial.println("Sending image 2...");
   transmitPicture(imageFileNames[1]);
   delay(500);
+  
   Serial.println("Sending image 3...");
   transmitPicture(imageFileNames[2]);
   delay(500);
