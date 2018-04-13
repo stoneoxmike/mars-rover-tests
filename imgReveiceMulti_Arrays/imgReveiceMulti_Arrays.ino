@@ -91,6 +91,10 @@ void loop() {
       t = millis();
     }
   }
+  Serial.println("Writing Final Packet");
+  for(int k = 0; k < (i + 1); k++) {      //Must right final packet before closing...i is +1 because we break before we do i++
+    img.write(packet[k]); 
+  }
   img.close();
   c++;  //increment file counter
   Serial.println("File Transfer Complete.");
