@@ -65,7 +65,7 @@ void loop() {
         Serial.print(" packet(s) recieved, first byte contains ");
         Serial.print(packet[0]);
         Serial.print(", around ");
-        Serial.print((r/490)*100);
+        Serial.print((r/490.00)*100.00);
         Serial.print(" percent complete file ");
         Serial.print(c);
         Serial.print(", packet written: ");

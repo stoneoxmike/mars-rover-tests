@@ -29,14 +29,14 @@ int imageNumber = 0; // This is the id of the current image we are capturing. Us
 
 void setup() {
   initialize();       //Start everything with nominal values                (DONE) 
-  //detectLaunch(24);   //Read MMA for launch acceleration signature        (DONE)
-  //delay(40000);       //Wait to clear separation debris, in milliseconds  (DONE)  
-  //detectGround(200);  //Read UTS for ground approach signature            (DONE)
+  detectLaunch(24);   //Read MMA for launch acceleration signature        (DONE)
+  delay(60000);       //Wait to clear separation debris, in milliseconds  (DONE)  
+  detectGround(200);  //Read UTS for ground approach signature            (DONE)
   releaseParachute();       //Move parachute release servo                  (DONE)
-  //delay(10000);       //Wait to land and settle, in milliseconds          (DONE)
+  delay(10000);       //Wait to land and settle, in milliseconds          (DONE)
   releaseTank();      //Move tank release servo                             (DONE)
-  //driveTank();        //Move tank, drop marker, move tank                 (DONE)
-  //captureImages();    //Store 4 images to SD card                           (DONE)
+  driveTank();        //Move tank, drop marker, move tank                 (DONE)
+  captureImages();    //Store 4 images to SD card                           (DONE)
   transmitImages();   //Transfer 4 images via xBee to ground station        (DONE) - With 37 hours to spare!
 }
 
@@ -204,7 +204,6 @@ void captureAndSaveImage(Adafruit_VC0706 camera) {
     buffer = camera.readPicture(bytesToRead);
     imgFile.write(buffer, bytesToRead);
     jpglen -= bytesToRead;
-    delay(1);
   }
   imgFile.close();
   imageFileNames[imageNumber] = filename;
@@ -265,8 +264,7 @@ void transmitPicture(String filename) {
       Serial.print((imgSize/100) + 1);
       Serial.print(", success: ");
       
-      delay(50);                                   //after packet is sent, tell other xbee to check
-      //while(Serial1.available() == 0);          //Better delay for this situation
+      while(Serial1.available() == 0);          //Better delay for this situation
       while(1) {
         byte reply = Serial1.read();
         if(reply == 48) {                   //check that no error is coming back
@@ -277,8 +275,7 @@ void transmitPicture(String filename) {
             Serial1.write(packet[m]);
             delay(8);
           }
-          delay(50);
-          //while(Serial1.available() == 0);
+          while(Serial1.available() == 0);
         }
         else if(reply == 49) {
           Serial.println("check");
