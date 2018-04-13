@@ -66,7 +66,7 @@ void loop() {
         Serial.print(packet[0]);
         Serial.print(", around ");
         Serial.print(490 - r);
-        Serial.print(" packets left ");
+        Serial.print(" packets left in file ");
         Serial.print(c);
         Serial.print(", packet written: ");
       }
