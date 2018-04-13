@@ -45,10 +45,10 @@ void loop() {
   unsigned long t = millis();
   int eof = 0;  //end of file signifier
   byte packet[100];  //array of packet bytes
-  unsigned int r = 1;  //packet counter
+  int r = 1;  //packet counter
   int c = 1;  //file counter
 
-  while(millis()-t < 450){ //the lander is transmitting the file
+  while(1){ //the lander is transmitting the file
     if(xBee.available() > 0) {
       packet[i] = xBee.read();  //read xbee data to next position of packet
 
@@ -62,11 +62,11 @@ void loop() {
 
       if(i%100 == 0) {  //send serial info every 100 bytes
         Serial.print(r);
-        Serial.print(" packet(s) recieved, last byte contains ");
+        Serial.print(" packet(s) recieved, first byte contains ");
         Serial.print(packet[0]);
         Serial.print(", around ");
-        Serial.print(490 - r);
-        Serial.print(" packets left in file ");
+        Serial.print((r/490)*100);
+        Serial.print(" percent complete file ");
         Serial.print(c);
         Serial.print(", packet written: ");
       }

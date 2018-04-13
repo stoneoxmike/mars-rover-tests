@@ -36,7 +36,7 @@ void setup() {
   //delay(10000);       //Wait to land and settle, in milliseconds          (DONE)
   releaseTank();      //Move tank release servo                             (DONE)
   //driveTank();        //Move tank, drop marker, move tank                 (DONE)
-  captureImages();    //Store 4 images to SD card                           (DONE)
+  //captureImages();    //Store 4 images to SD card                           (DONE)
   transmitImages();   //Transfer 4 images via xBee to ground station        (DONE) - With 37 hours to spare!
 }
 
@@ -265,8 +265,8 @@ void transmitPicture(String filename) {
       Serial.print((imgSize/100) + 1);
       Serial.print(", success: ");
       
-      //delay(50);                                   //after packet is sent, tell other xbee to check
-      while(Serial1.available() == 0);          //Better delay for this situation
+      delay(50);                                   //after packet is sent, tell other xbee to check
+      //while(Serial1.available() == 0);          //Better delay for this situation
       while(1) {
         byte reply = Serial1.read();
         if(reply == 48) {                   //check that no error is coming back
@@ -277,8 +277,8 @@ void transmitPicture(String filename) {
             Serial1.write(packet[m]);
             delay(8);
           }
-          //delay(50);
-          while(Serial1.available() == 0);
+          delay(50);
+          //while(Serial1.available() == 0);
         }
         else if(reply == 49) {
           Serial.println("check");
@@ -305,7 +305,6 @@ void transmitImages(){
   Serial.println("Sending image 2...");
   transmitPicture(imageFileNames[1]);
   delay(500);
-  
   Serial.println("Sending image 3...");
   transmitPicture(imageFileNames[2]);
   delay(500);
