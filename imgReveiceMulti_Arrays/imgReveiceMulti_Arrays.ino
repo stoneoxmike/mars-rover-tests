@@ -4,7 +4,8 @@
 
 SoftwareSerial xBee(5, 6); // RX, TX
 
-
+const int topButton = 3;
+const int bottomButton = 2;
 
 File img;
 
@@ -12,6 +13,9 @@ void setup() {
   Serial.begin(115200);
   xBee.begin(9600);
 
+  pinMode(topButton, INPUT);
+  pinMode(bottomButton, INPUT);
+  
   Serial.print("Initializing SD card...");
 
   if (!SD.begin(10)) {
@@ -89,6 +93,17 @@ void loop() {
       }
       i = 0;          //reset counters
       t = millis();
+    }
+    //button checking and sending before the while cycle around again...
+    if(digitalRead(topButton) == HIGH){
+      xBee.write(48);
+      Serial.println("*** Manual request for a packet resend ***");
+      delay(100);
+    }
+    if(digitalRead(bottomButton) == HIGH){
+      xBee.write(49);
+      Serial.println("*** Manual request to continue to next packet ***");
+      delay(100);
     }
   }
   Serial.println("Writing Final Packet");
